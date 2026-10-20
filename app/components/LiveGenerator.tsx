@@ -26,8 +26,9 @@ function friendly(message: string): string {
 
 export function LiveGenerator({ query }: { query: string }) {
   const router = useRouter();
-  const [status, setStatus] = useState<Record<string, Status>>({});
-  const [logs, setLogs] = useState<Record<string, string[]>>({});
+  // Show the first step as running straight away, before the server's first event arrives.
+  const [status, setStatus] = useState<Record<string, Status>>({ resolve: "started" });
+  const [logs, setLogs] = useState<Record<string, string[]>>({ resolve: ["Connecting…"] });
   const [error, setError] = useState<string | null>(null);
   const [seconds, setSeconds] = useState(0);
   const started = useRef(false);

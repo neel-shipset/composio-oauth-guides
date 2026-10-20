@@ -28,6 +28,10 @@ export async function POST(request: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       const send = (e: PipelineEvent) => controller.enqueue(sse(e));
+      // Proxies can hold back a stream until enough bytes arrive, which made the page look
+      // frozen for the first seconds. Send a padded comment at once, then a heartbeat.
+      controller.enqueue(encoder.encode(`: ${" ".repeat(2048)}\n\n`));
+      const heartbeat = setInterval(() => controller.enqueue(encoder.encode(": ping\n\n")), 10_000);
       try {
         // Hold back "done" until the guide is saved, so the redirect never lands on a missing page.
         const guide = await withBudget(PROFILES.live.capUsd, () => generateGuide(q, (e) => e.type !== "done" && send(e), PROFILES.live)).result;
@@ -36,11 +40,17 @@ export async function POST(request: Request) {
       } catch (err) {
         send({ type: "error", message: err instanceof Error ? err.message : String(err) });
       } finally {
+        clearInterval(heartbeat);
         controller.close();
       }
     },
   });
   return new Response(stream, {
-    headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform" },
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache, no-transform",
+      "X-Accel-Buffering": "no",
+      Connection: "keep-alive",
+    },
   });
 }
