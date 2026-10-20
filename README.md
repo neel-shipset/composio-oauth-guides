@@ -4,7 +4,9 @@ Look up any app and get a shareable guide to getting **your own OAuth app** set 
 
 Built for the Composio APM (toolkits) take-home.
 
-- **Live:** TODO (Vercel link)
+- **Live:** https://oauth-guides-neel.vercel.app
+- **Code:** https://github.com/neel-shipset/composio-oauth-guides
+- **Try:** open a library guide (e.g. [Jira](https://oauth-guides-neel.vercel.app/guide/jira)), or type an app that is not in the library, such as HubSpot, to watch it researched live
 - **Library:** 9 guides, difficulty 2 to 5: GitHub, Jira, Notion MCP, X, Zoom, Gmail, Slack, Shopify, LinkedIn Ads
 - **Live generation:** type any app; about $0.30 and 2-3 minutes per new guide
 
