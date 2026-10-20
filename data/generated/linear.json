@@ -1,0 +1,772 @@
+{
+  "slug": "linear",
+  "name": "Linear",
+  "provider": "Linear",
+  "developerPortalUrl": "https://linear.app/developers",
+  "generatedAt": "2026-10-20",
+  "pipelineVersion": "0.1.0",
+  "authTypes": [
+    "oauth2",
+    "api_key"
+  ],
+  "composio": {
+    "toolkitSlug": "LINEAR",
+    "managedOAuth": true,
+    "scopes": []
+  },
+  "needOwnApp": {
+    "verdict": "recommended_for_production",
+    "reasons": [
+      "Composio's Linear toolkit page and its managed-OAuth directory both say Composio provides a managed Linear OAuth app, so you can test with no setup of your own.",
+      "Composio's own setup guide for Linear walks through creating your own OAuth2 application in the Linear Developer Portal and plugging its Client ID/Secret into Composio, which only makes sense as a path to put your product's name on Linear's authorization screen instead of Composio's shared app name.",
+      "Workspaces on paid Linear plans can turn on third-party app approvals, where an admin sees the requesting app's name before approving it; a clearly branded app of your own is easier for a customer's admin to recognize and approve than a shared integrator's app."
+    ],
+    "claimIds": [
+      "k1",
+      "k2",
+      "f15",
+      "f16",
+      "f17",
+      "f12",
+      "f13",
+      "f14"
+    ]
+  },
+  "verdict": {
+    "difficulty": 1,
+    "summary": "Linear's OAuth app registration is self-serve in the developer portal, with no distribution switch and, per a 2025 community report, no official review process for third-party OAuth apps at all. You can register an app, point its callback URL at Composio, and let outside users connect the same day. The one caveat outside your control: workspaces on paid Linear plans can turn on 'third-party app approvals,' which makes a connecting user's own workspace admin approve your app before that user can finish connecting. This is a per-customer control, not something you configure, and it does not change the difficulty score.",
+    "timeToTesting": {
+      "min": 15,
+      "max": 45,
+      "unit": "minutes",
+      "label": "15-45 min",
+      "claimIds": [
+        "f1",
+        "f29",
+        "f15",
+        "e1",
+        "e2"
+      ]
+    },
+    "timeToProduction": {
+      "min": 0,
+      "max": 1,
+      "unit": "days",
+      "label": "Same day, no Linear-side review as of mid-2025 community reports",
+      "claimIds": [
+        "f25",
+        "k2"
+      ]
+    },
+    "mainBlocker": "No Linear-side review blocks launch. The practical blockers are refresh-token handling bugs (rotation, race conditions, revocation) causing invalid_grant errors after launch, and customers on paid plans with third-party app approvals enabled, whose workspace admin must approve your app before their teammates can connect.",
+    "confidence": "medium"
+  },
+  "stages": [
+    {
+      "name": "Register the OAuth app in Linear",
+      "duration": {
+        "min": 10,
+        "max": 30,
+        "unit": "minutes",
+        "label": "10-30 min",
+        "claimIds": [
+          "e1",
+          "f1",
+          "f29"
+        ]
+      },
+      "limits": [
+        "Linear recommends creating a dedicated workspace to manage the OAuth app, since every admin of that workspace gets access to it.",
+        "Avoid requesting the admin scope unless absolutely needed; Linear's own docs warn against it, and app-actor installations cannot request it at all."
+      ],
+      "steps": [
+        {
+          "title": "Create the OAuth2 application",
+          "detail": "Sign in to Linear and open Settings > API > Your Applications (via the developer portal) to create a new OAuth2 application.",
+          "actor": "human",
+          "humanReason": "Requires signing in to a Linear account; Linear's developer portal has no unauthenticated app-creation API.",
+          "links": [
+            {
+              "label": "Linear Developers",
+              "url": "https://linear.app/developers"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "f29",
+            "f1"
+          ]
+        },
+        {
+          "title": "Consider a dedicated workspace for the app",
+          "detail": "Linear recommends managing the OAuth2 application from a dedicated workspace, since every admin user of that workspace has access to the app's credentials.",
+          "actor": "human",
+          "humanReason": "Creating or choosing a workspace is an account-level decision made by a signed-in person.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "f2"
+          ]
+        },
+        {
+          "title": "Set the callback URL",
+          "detail": "Set the OAuth app's redirect callback URL to Composio's redirect URI. Copy the exact value from your Composio dashboard when you create the Linear auth config; do not hardcode it.",
+          "actor": "human",
+          "humanReason": "Done inside the signed-in Linear developer settings.",
+          "links": [
+            {
+              "label": "Composio dashboard",
+              "url": "https://platform.composio.dev"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Callback URL",
+              "value": "Copy from Composio: Auth Configs > Create Auth Config > Linear > OAuth2"
+            }
+          ],
+          "claimIds": [
+            "f1",
+            "f15"
+          ]
+        },
+        {
+          "title": "Choose scopes",
+          "detail": "Add only the scopes your agent's tools need from read, write, issues:create, timeSchedule:write. Avoid admin unless it is absolutely required; app-actor installations cannot request it anyway. Scopes are submitted as a comma-separated list.",
+          "actor": "either",
+          "links": [],
+          "preparedValues": [
+            {
+              "label": "Example minimal scopes",
+              "value": "read,write"
+            }
+          ],
+          "claimIds": [
+            "f5",
+            "f27",
+            "f30"
+          ]
+        },
+        {
+          "title": "Copy the Client ID and Secret",
+          "detail": "Copy the Client ID and Secret for use in Composio. The secret can be rotated later from the app's settings page without re-registering the app, and rotating it does not invalidate already-granted access or refresh tokens.",
+          "actor": "human",
+          "humanReason": "The secret should move only from the Linear console to Composio, handled by a person.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "f11"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Connect it in Composio and test",
+      "duration": {
+        "min": 5,
+        "max": 15,
+        "unit": "minutes",
+        "label": "5-15 min",
+        "claimIds": [
+          "e2"
+        ]
+      },
+      "limits": [
+        "Composio also offers a managed Linear OAuth app, so you can skip creating your own credentials for initial testing."
+      ],
+      "steps": [
+        {
+          "title": "Create the Linear auth config in Composio",
+          "detail": "Create an OAuth2 auth config for Linear in Composio, either using your own Client ID/Secret and scopes, or Composio's managed app if you just want to test quickly. Composio supports both OAuth2 and API Key auth for Linear.",
+          "actor": "either",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "k2",
+            "f16",
+            "f17"
+          ]
+        },
+        {
+          "title": "Connect your own Linear workspace and test",
+          "detail": "Start a connection, approve the consent screen, and confirm the redirect returns the authorization code with a matching state parameter. Run one tool call to confirm it works.",
+          "actor": "human",
+          "humanReason": "You approve the first consent screen with your own Linear account.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "f4"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Open it to outside users",
+      "duration": {
+        "min": 0,
+        "max": 1,
+        "unit": "days",
+        "label": "Same day, per a 2025 community report of no review process",
+        "claimIds": [
+          "f25",
+          "k2"
+        ]
+      },
+      "limits": [
+        "Workspaces on paid Linear plans can enable third-party app approvals; if a connecting user's workspace has this on, their admin must approve your app before the connection completes.",
+        "One community report (June 2025) found only about 2% of visitors completed OAuth for a Linear app requesting broad workspace read access, attributing it to user distrust of all-or-nothing OAuth scopes."
+      ],
+      "steps": [
+        {
+          "title": "Confirm there is no distribution switch to flip",
+          "detail": "Unlike many OAuth providers, Linear is reported to have no official app store or review process for third-party OAuth apps, so there is no sharing switch or review request to submit before outside users can connect.",
+          "actor": "either",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "f25"
+          ]
+        },
+        {
+          "title": "Prepare guidance for customers with app approvals enabled",
+          "detail": "Draft a short note telling customers that if their workspace has third-party app approvals on, their admin needs to approve the app from Settings > Administration > Security after a teammate requests it.",
+          "actor": "agent",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "f12",
+            "f13",
+            "f14"
+          ]
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "title": "Redirect and state validation",
+      "detail": "After approval, Linear redirects to your configured callback URL with the authorization code and a state parameter; your app must verify the state matches what it sent.",
+      "claimIds": [
+        "f4"
+      ]
+    },
+    {
+      "title": "Minimal scopes, comma-separated",
+      "detail": "Request scopes as a comma-separated list from read, write, issues:create, timeSchedule:write. Avoid admin unless absolutely necessary; it also cannot be requested by app-actor installations.",
+      "claimIds": [
+        "f5",
+        "f27",
+        "f30"
+      ]
+    },
+    {
+      "title": "Access and refresh token lifecycle",
+      "detail": "Access tokens last 24 hours. Refresh tokens rotate on every use, with a 30-minute grace period to replay a refresh request after a network error. Refresh tokens can also expire from inactivity, and are rotated as part of the default model for apps created on or after October 1, 2025.",
+      "claimIds": [
+        "f7",
+        "f9",
+        "f20",
+        "f28"
+      ]
+    },
+    {
+      "title": "Dedicated workspace for app management",
+      "detail": "Linear recommends managing the OAuth app from a dedicated workspace because every admin of that workspace gets access to the app's credentials.",
+      "claimIds": [
+        "f2"
+      ]
+    },
+    {
+      "title": "Token revocation handling",
+      "detail": "Linear exposes a token revocation endpoint (200 success, 400 already revoked, 401 bad token) and can also auto-revoke tokens on its own security heuristics or when a user/admin removes the app, in which case the user must reconnect.",
+      "claimIds": [
+        "f10",
+        "f21",
+        "f24"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "title": "Callback URL mismatch",
+      "symptom": "The authorization redirect fails or returns an error instead of the code and state.",
+      "fix": "Make the callback URL configured in Linear identical to the redirect URI shown in your Composio Linear auth config.",
+      "claimIds": [
+        "f1",
+        "f4"
+      ]
+    },
+    {
+      "title": "invalid_grant on token refresh",
+      "symptom": "Refreshing an access token suddenly fails with invalid_grant.",
+      "fix": "Developers report this most often comes from reusing an already-rotated refresh token, from parallel refresh calls racing and overwriting a valid token with a stale one, or from using the wrong client_id/secret after rotation. Serialize refresh calls per connection and always use the latest rotated token.",
+      "claimIds": [
+        "f18",
+        "f19",
+        "f23"
+      ]
+    },
+    {
+      "title": "Connection silently stops working",
+      "symptom": "A previously working connection starts failing auth with no code change.",
+      "fix": "Developers report Linear can auto-revoke tokens based on security heuristics (unusual access patterns, rate-limit violations), or a user/admin removed the app, invalidating all its tokens immediately; the user has to reconnect.",
+      "claimIds": [
+        "f21",
+        "f24"
+      ]
+    },
+    {
+      "title": "Scope change breaks existing users",
+      "symptom": "Users who were previously connected are suddenly asked to reauthorize after you changed the app's scopes.",
+      "fix": "Developers report that modifying an OAuth app's scopes or configuration after initial authorization can invalidate existing refresh tokens. Avoid changing scopes on a live app; prefer adding a new app if scopes must grow.",
+      "claimIds": [
+        "f22"
+      ]
+    },
+    {
+      "title": "Customer's workspace blocks the connection",
+      "symptom": "A user says their workspace requires approval before your app can connect, or they never see an authorize prompt.",
+      "fix": "Their workspace has third-party app approvals turned on (available on paid plans). Their admin must approve the install from Settings > Administration > Security.",
+      "claimIds": [
+        "f12",
+        "f13",
+        "f14"
+      ]
+    }
+  ],
+  "handoff": {
+    "agentCan": [
+      "Pick the minimum scopes needed for the Composio Linear tools in use, avoiding admin",
+      "Prepare the callback URL and other values to paste into the Linear developer portal",
+      "Create the Composio Linear auth config via the Composio API once given the Client ID/Secret through a secure channel",
+      "Write refresh-token handling code with locking to avoid race-condition invalid_grant errors",
+      "Draft the customer-facing note about workspace admin approval for third-party apps"
+    ],
+    "youMust": [
+      "Sign in to Linear to create the OAuth2 application (no unauthenticated API for this)",
+      "Decide whether to use a dedicated workspace to manage the app",
+      "Copy the Client ID and Secret into Composio yourself",
+      "Approve the first consent screen to test the connection"
+    ]
+  },
+  "unknowns": [
+    {
+      "question": "Does Composio's managed Linear OAuth app request the admin scope, or does it stick to read/write only?",
+      "whyItMatters": "Linear advises never requesting admin unless absolutely needed, and some installation types can't request it at all; this affects what the consent screen shows your users and what your agent can actually do.",
+      "askWhom": "Composio support",
+      "draftEmail": "Hi Composio team, for the Linear toolkit's managed OAuth app, which scopes does it request by default (read, write, issues:create, timeSchedule:write, admin)? We want to know if admin is included before we point production users at it. Thanks."
+    },
+    {
+      "question": "Is Linear's current lack of an official OAuth app review process a permanent policy, or is a review/app-store process planned?",
+      "whyItMatters": "Our difficulty rating assumes no review gate; if Linear introduces one, previously-launched apps could face a retroactive review requirement.",
+      "askWhom": "Linear developer support",
+      "draftEmail": "Hi Linear team, we're building a third-party OAuth integration. We understand there is currently no formal app review or app store process for OAuth apps. Is this expected to remain the case, or is a review process planned? Thanks."
+    },
+    {
+      "question": "When a customer workspace has third-party app approvals enabled, does the Linear OAuth flow fail outright or does it return a pending state Composio/our app can detect and surface to the user?",
+      "whyItMatters": "This determines whether we need special handling in our app to tell a user their connection is 'pending admin approval' versus treating it as a failed connection.",
+      "askWhom": "Linear developer support",
+      "draftEmail": "Hi Linear team, when a workspace has third-party app approvals enabled and a member tries to authorize our OAuth app, what does the OAuth flow return: an error, a pending state, or something else? We want to handle this correctly in our UI. Thanks."
+    }
+  ],
+  "claims": [
+    {
+      "id": "k1",
+      "text": "Composio's Linear toolkit supports these auth schemes: OAUTH2, API_KEY.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/toolkits/linear",
+          "title": "Composio: Linear toolkit",
+          "quote": "Auth: OAUTH2, API_KEY",
+          "publishedAt": "2026-10-20",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "k2",
+      "text": "Composio-managed OAuth is available for this toolkit.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/toolkits/linear",
+          "title": "Composio: Linear toolkit",
+          "quote": "Composio-managed OAuth available? Yes",
+          "publishedAt": "2026-10-20",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f15",
+      "text": "To connect Linear to Composio, create an OAuth application in the Linear Developer Portal with the Callback URL set to Composio's endpoint.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://composio.dev/auth/linear",
+          "title": "How to create Linear OAuth2 credentials and configure it in Composio | Composio",
+          "quote": "For the Callback URL, configure it to point to Composio's callback URL, which is:\nhttps : //backend.composio.dev/api/v1/auth-apps/add",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f16",
+      "text": "Composio supports both OAuth2 and API Key authentication methods for Linear.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://composio.dev/auth/linear",
+          "title": "How to create Linear OAuth2 credentials and configure it in Composio | Composio",
+          "quote": "In the sidebar that opens, choose Linear for the toolkit. Ensure the authentication is set to OAuth2 . There is also support for API Key with Linear if you ever need it in the future.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f17",
+      "text": "Users can set up their own custom developer credentials for Linear in Composio instead of using Composio's shared app.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://composio.dev/auth/linear",
+          "title": "How to create Linear OAuth2 credentials and configure it in Composio | Composio",
+          "quote": "Here we are interested in setting up our own custom developer credentials, so to do that, enable Use your own developer credentials .",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f12",
+      "text": "Workspaces on any paid plan can enable third-party application approvals so admins/owners control which apps can be installed.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/docs/third-party-application-approvals",
+          "title": "Third-Party App Approvals – Linear Docs",
+          "quote": "Requiring approval for third-party applications ensures that the people with permission to manage apps control which applications can access the workspace and its data.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f13",
+      "text": "A workspace owner (Enterprise) or workspace admin (other paid plans) can turn on third-party app approvals from Settings > Administration > Security.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/docs/third-party-application-approvals",
+          "title": "Third-Party App Approvals – Linear Docs",
+          "quote": "A workspace owner in an Enterprise workspace, or a workspace admin in any other paid workspace, can turn on third-party application approvals from Settings > Administration > Security .",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f14",
+      "text": "When approvals are enabled, members requesting an app installation see a request screen, and admins/owners get email and in-app notifications to approve or deny with an optional reason.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/docs/third-party-application-approvals",
+          "title": "Third-Party App Approvals – Linear Docs",
+          "quote": "When a workspace member tries to install a third-party app, Linear will display a screen which allows the member to request approval and optionally include a reason for their request. If the application has already been denied previously, Linear will let the requestor know and share the reason.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f1",
+      "text": "OAuth2 applications are created in Linear and require configuring redirect callback URLs to your application.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/developers/oauth-2-0-authentication",
+          "title": "OAuth 2.0 authentication – Linear Developers",
+          "quote": "Create a new OAuth2 Application and configure the redirect callback URLs to your application.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f29",
+      "text": "The OAuth app itself (client_id, client_secret, redirect URIs, optional client-credentials support) is created in Linear's Settings -> API -> Your Applications before any tokens can be obtained.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://github.com/nshkrdotcom/linear_sdk/blob/main/guides/oauth-and-token-management.md",
+          "title": "linear_sdk/guides/oauth-and-token-management.md at main · nshkrdotcom/linear_sdk · GitHub",
+          "quote": "Linear's current official docs point\nto Settings -> API -> Your Applications for creating the OAuth app itself.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "e1",
+      "text": "Estimate: Estimated 10-30 minutes to create the OAuth2 app in Linear's developer settings, set the callback URL, and choose scopes, based on the straightforward self-serve steps described in Linear's docs.",
+      "evidence": "unknown",
+      "sources": []
+    },
+    {
+      "id": "e2",
+      "text": "Estimate: Estimated 5-15 minutes to create the auth config in Composio and complete one test connection, based on typical Composio onboarding flows for a toolkit with no extra provider-side setup.",
+      "evidence": "unknown",
+      "sources": []
+    },
+    {
+      "id": "f25",
+      "text": "Developers report (June 30, 2025) that Linear currently lacks an official app store or review process for third-party OAuth integrations, making every connection an all-or-nothing trust decision for users.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://www.marcusmth.com/linear-oauth-learnings",
+          "title": "How Linear Can Build a Safer OAuth App Ecosystem (Lessons from Launching Linear Top Issue)",
+          "quote": "Unlike Slack, Notion, or GitHub, there's no official app store or extension library with granular permission controls.",
+          "publishedAt": "2025-06-30",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f2",
+      "text": "It is recommended to create a dedicated workspace to manage the OAuth2 Application since each admin user has access.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/developers/oauth-2-0-authentication",
+          "title": "OAuth 2.0 authentication – Linear Developers",
+          "quote": "It is highly recommended you create a workspace for the purpose of managing the OAuth2 Application, as each admin user will have access.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f5",
+      "text": "Scopes are passed as a comma-separated list, including read, write, issues:create, timeSchedule:write, and admin; admin should never be requested unless absolutely needed.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/developers/oauth-2-0-authentication",
+          "title": "OAuth 2.0 authentication – Linear Developers",
+          "quote": "admin - Full access to admin level endpoints. You should never ask for this permission unless it’s absolutely needed",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f27",
+      "text": "Linear's actor-authorization docs state that actor=app installations cannot request the admin scope.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://github.com/nshkrdotcom/linear_sdk/blob/main/guides/oauth-and-token-management.md",
+          "title": "linear_sdk/guides/oauth-and-token-management.md at main · nshkrdotcom/linear_sdk · GitHub",
+          "quote": "Linear's current actor-authorization docs also say actor=app installations cannot request admin scope.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f30",
+      "text": "Linear expects OAuth scopes to be submitted as a comma-delimited string in the authorization request.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://github.com/nshkrdotcom/linear_sdk/blob/main/guides/oauth-and-token-management.md",
+          "title": "linear_sdk/guides/oauth-and-token-management.md at main · nshkrdotcom/linear_sdk · GitHub",
+          "quote": "Linear expects OAuth scopes as a comma-delimited string. Pass a list in Elixir;\nthe helper joins it correctly for you.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f11",
+      "text": "Client secret or webhook signing secret can be rotated from the app's settings page without re-registering the app; rotating the client secret invalidates client-credentials tokens but not already-granted access/refresh tokens.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/developers/oauth-2-0-authentication",
+          "title": "OAuth 2.0 authentication – Linear Developers",
+          "quote": "Rotating your client secret immediately invalidates any client credentials tokens issued for your application. It does not revoke access or refresh tokens already granted to individual workspaces, those keep working, and will use your new secret the next time they’re refreshed.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f4",
+      "text": "After user approval, the app is redirected to the configured redirect URI with the authorization code and the state parameter in the URL params, and the state must be verified to match.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/developers/oauth-2-0-authentication",
+          "title": "OAuth 2.0 authentication – Linear Developers",
+          "quote": "Any state parameter you specified in step 2 will also be returned in the URL params and must match the value specified in step 2. If the values do not match, the request should not be trusted.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f7",
+      "text": "Access tokens are valid for 24 hours and must be refreshed using the refresh token after expiry.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/developers/oauth-2-0-authentication",
+          "title": "OAuth 2.0 authentication – Linear Developers",
+          "quote": "After a successful request, a valid access token and refresh token will be returned in the response. The access token is valid for 24 hours and will need to be refreshed when it expires.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f9",
+      "text": "Refresh tokens are rotated on use; a 30-minute grace period allows replaying the refresh request if the new token response wasn't received due to network errors.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/developers/oauth-2-0-authentication",
+          "title": "OAuth 2.0 authentication – Linear Developers",
+          "quote": "Requests to consume a refresh token and obtain a new one have a 30-minute grace period to allow for network errors. If you make a request with a valid refresh token but do not receive the new one in the response, you can replay the original request to retrieve the new refresh token up to 30 minutes after the original request.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f20",
+      "text": "Developers report that Linear access tokens expire in 24 hours when refresh tokens are enabled, and refresh tokens can also expire due to inactivity.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://nango.dev/blog/linear-oauth-refresh-token-invalid-grant/",
+          "title": "Linear OAuth refresh token invalid_grant, What it means & how to fix it | Nango Blog",
+          "quote": "Linear access tokens expire in 24 hours when refresh tokens are enabled. If you miss the refresh window or the access token expires before you refresh, you may need to use the refresh token. However, if the refresh token itself has expired due to inactivity, Linear returns invalid_grant and requires re-authorization.",
+          "publishedAt": "2026-01-27",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f28",
+      "text": "As of April 1, 2026, refresh tokens are part of the default model for OAuth apps created on or after October 1, 2025; older apps had a temporary migration endpoint for legacy non-refreshable tokens.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://github.com/nshkrdotcom/linear_sdk/blob/main/guides/oauth-and-token-management.md",
+          "title": "linear_sdk/guides/oauth-and-token-management.md at main · nshkrdotcom/linear_sdk · GitHub",
+          "quote": "As of April 1, 2026, Linear's official OAuth docs say refresh tokens are part of the default model for apps created on or after October 1, 2025. This SDK targets that current model. It does not wrap the temporary legacy migration endpoint for old non-refreshable tokens.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f10",
+      "text": "A token revocation endpoint exists, returning 200 for success, 400 if already revoked, and 401 if unable to authenticate with the token.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://linear.app/developers/oauth-2-0-authentication",
+          "title": "OAuth 2.0 authentication – Linear Developers",
+          "quote": "- 200 - token was revoked\n- 400 - unable to revoke token (e.g. token was already revoked)\n- 401 - unable to authenticate with the token",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f21",
+      "text": "Developers report that user revocation or app removal from a workspace immediately invalidates all associated tokens with no way to revive them, requiring re-auth.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://nango.dev/blog/linear-oauth-refresh-token-invalid-grant/",
+          "title": "Linear OAuth refresh token invalid_grant, What it means & how to fix it | Nango Blog",
+          "quote": "If an end-user removes your application from their Linear workspace or revokes access in their account settings, Linear immediately invalidates all associated tokens.",
+          "publishedAt": "2026-01-27",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f24",
+      "text": "Developers report Linear may automatically revoke refresh tokens based on security heuristics such as unusual access patterns, rate limit violations, or detected token compromise.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://nango.dev/blog/linear-oauth-refresh-token-invalid-grant/",
+          "title": "Linear OAuth refresh token invalid_grant, What it means & how to fix it | Nango Blog",
+          "quote": "Linear may revoke refresh tokens based on security heuristics or policy changes. This can include:\n- Unusual access patterns detected by Linear’s systems\n- Suspicious activity or potential security threats\n- Rate limit violations or abuse detection\n- Token exposure or compromise detected",
+          "publishedAt": "2026-01-27",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f18",
+      "text": "Developers report that invalid_grant errors on Linear's refresh endpoint most commonly occur from reusing an already-rotated refresh token.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://nango.dev/blog/linear-oauth-refresh-token-invalid-grant/",
+          "title": "Linear OAuth refresh token invalid_grant, What it means & how to fix it | Nango Blog",
+          "quote": "Most common: You’re not using the latest refresh token\nSome OAuth providers rotate refresh tokens. Linear does: when a refresh token is exchanged, the previous access and refresh tokens are invalidated and new tokens are returned.",
+          "publishedAt": "2026-01-27",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f19",
+      "text": "Developers report that running token refreshes across multiple processes without locking causes race conditions where one process overwrites a valid new refresh token with a stale one, breaking all subsequent refreshes.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://nango.dev/blog/linear-oauth-refresh-token-invalid-grant/",
+          "title": "Linear OAuth refresh token invalid_grant, What it means & how to fix it | Nango Blog",
+          "quote": "This is also the most common failure mode when teams run token refreshes in multiple processes/containers without proper locking: one process stores the “new” refresh token, another process overwrites it with the stale one, and suddenly every refresh starts failing.",
+          "publishedAt": "2026-01-27",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f23",
+      "text": "Developers report that using the wrong client_id/client_secret (e.g., after secret rotation or copy-paste errors) causes invalid_grant on refresh.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://nango.dev/blog/linear-oauth-refresh-token-invalid-grant/",
+          "title": "Linear OAuth refresh token invalid_grant, What it means & how to fix it | Nango Blog",
+          "quote": "Using incorrect client_id or client_secret when refreshing tokens will result in invalid_grant errors. This often happens after:\n- Client secret rotation\n- Using credentials from the wrong Linear workspace\n- Copy-paste errors in environment variables",
+          "publishedAt": "2026-01-27",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "f22",
+      "text": "Developers report that modifying an OAuth app's scopes or configuration after initial authorization can invalidate existing refresh tokens and require re-authorization.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://nango.dev/blog/linear-oauth-refresh-token-invalid-grant/",
+          "title": "Linear OAuth refresh token invalid_grant, What it means & how to fix it | Nango Blog",
+          "quote": "If the OAuth app’s scopes are modified after the initial authorization, or if the app configuration changes in Linear, existing refresh tokens may become invalid and require re-authorization.",
+          "publishedAt": "2026-01-27",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    }
+  ],
+  "attempt": {
+    "mode": "public",
+    "ranAt": "2026-10-20",
+    "outcome": "completed",
+    "log": [
+      {
+        "step": "Open the app registration page",
+        "result": "done",
+        "note": "Loaded \"Linear Developers\" (HTTP 200) without signing in (https://linear.app/developers)"
+      }
+    ]
+  }
+}

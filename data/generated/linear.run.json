@@ -1,0 +1,186 @@
+{
+  "query": "linear",
+  "profile": "live",
+  "seconds": 179.769,
+  "usage": {
+    "input": 86202,
+    "output": 17925,
+    "cacheRead": 0,
+    "searches": 3,
+    "fetches": 0,
+    "costUsd": 0.318212,
+    "capUsd": 1
+  },
+  "events": [
+    {
+      "type": "stage",
+      "stage": "resolve",
+      "status": "started",
+      "note": "linear",
+      "t": 1
+    },
+    {
+      "type": "log",
+      "stage": "resolve",
+      "message": "searching: Linear OAuth app registration developer portal",
+      "t": 1860
+    },
+    {
+      "type": "log",
+      "stage": "resolve",
+      "message": "searching: Linear API OAuth scopes permissions requirements",
+      "t": 2317
+    },
+    {
+      "type": "log",
+      "stage": "resolve",
+      "message": "searching: Linear OAuth app approval verification review process",
+      "t": 2430
+    },
+    {
+      "type": "stage",
+      "stage": "resolve",
+      "status": "done",
+      "t": 14022
+    },
+    {
+      "type": "log",
+      "stage": "resolve",
+      "message": "Linear by Linear, toolkit LINEAR",
+      "t": 14022
+    },
+    {
+      "type": "stage",
+      "stage": "composio",
+      "status": "started",
+      "t": 14022
+    },
+    {
+      "type": "stage",
+      "stage": "attempt",
+      "status": "started",
+      "t": 14025
+    },
+    {
+      "type": "log",
+      "stage": "composio",
+      "message": "auth OAUTH2, API_KEY; Composio-managed OAuth yes",
+      "t": 14543
+    },
+    {
+      "type": "stage",
+      "stage": "composio",
+      "status": "done",
+      "t": 14544
+    },
+    {
+      "type": "log",
+      "stage": "attempt",
+      "message": "done: Loaded \"Linear Developers\" (HTTP 200) without signing in",
+      "t": 14605
+    },
+    {
+      "type": "stage",
+      "stage": "attempt",
+      "status": "done",
+      "t": 14606
+    },
+    {
+      "type": "stage",
+      "stage": "read",
+      "status": "started",
+      "t": 14606
+    },
+    {
+      "type": "log",
+      "stage": "read",
+      "message": "read official: OAuth 2.0 authentication – Linear Developers",
+      "t": 16303
+    },
+    {
+      "type": "log",
+      "stage": "read",
+      "message": "read official: Linear Developers",
+      "t": 16304
+    },
+    {
+      "type": "log",
+      "stage": "read",
+      "message": "read official: Third-Party App Approvals – Linear Docs",
+      "t": 16304
+    },
+    {
+      "type": "log",
+      "stage": "read",
+      "message": "read composio: How to create Linear OAuth2 credentials and configure it in Composio | Composio",
+      "t": 16304
+    },
+    {
+      "type": "log",
+      "stage": "read",
+      "message": "read composio: https://docs.composio.dev/kb/guide/toolkits-linear",
+      "t": 16304
+    },
+    {
+      "type": "log",
+      "stage": "read",
+      "message": "read community: Linear OAuth refresh token invalid_grant — What it means & how to fix it | Nango",
+      "t": 16304
+    },
+    {
+      "type": "log",
+      "stage": "read",
+      "message": "read community: How Linear Can Build a Safer OAuth App Ecosystem (Lessons from Launching Linear ",
+      "t": 16304
+    },
+    {
+      "type": "log",
+      "stage": "read",
+      "message": "read community: linear_sdk/guides/oauth-and-token-management.md at main · nshkrdotcom/linear_sdk",
+      "t": 16304
+    },
+    {
+      "type": "log",
+      "stage": "read",
+      "message": "could not use 1 page(s): https://linear.app/settings/api/applications",
+      "t": 16304
+    },
+    {
+      "type": "stage",
+      "stage": "read",
+      "status": "done",
+      "t": 16306
+    },
+    {
+      "type": "stage",
+      "stage": "extract",
+      "status": "started",
+      "note": "8 pages",
+      "t": 16306
+    },
+    {
+      "type": "log",
+      "stage": "extract",
+      "message": "30 findings kept; 1 dropped because their quote was not on the page",
+      "t": 51481
+    },
+    {
+      "type": "stage",
+      "stage": "extract",
+      "status": "done",
+      "t": 51482
+    },
+    {
+      "type": "stage",
+      "stage": "write",
+      "status": "started",
+      "t": 51482
+    },
+    {
+      "type": "stage",
+      "stage": "write",
+      "status": "done",
+      "t": 179750
+    }
+  ]
+}

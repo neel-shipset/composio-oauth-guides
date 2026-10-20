@@ -1,0 +1,720 @@
+{
+  "slug": "jira",
+  "name": "Jira",
+  "provider": "Atlassian",
+  "developerPortalUrl": "https://developer.atlassian.com/console/myapps/",
+  "generatedAt": "2026-10-19",
+  "pipelineVersion": "gold-manual",
+  "authTypes": [
+    "oauth2",
+    "api_key"
+  ],
+  "composio": {
+    "toolkitSlug": "JIRA",
+    "managedOAuth": true,
+    "scopes": [
+      "read:jira-work",
+      "write:jira-work",
+      "manage:jira-project",
+      "manage:jira-configuration",
+      "read:jira-user",
+      "manage:jira-webhook",
+      "manage:jira-data-provider",
+      "read:servicedesk-request",
+      "manage:servicedesk-customer",
+      "write:servicedesk-request",
+      "read:servicemanagement-insight-objects",
+      "offline_access",
+      "read:sprint:jira-software",
+      "write:sprint:jira-software",
+      "read:board-scope:jira-software",
+      "write:board-scope:jira-software",
+      "read:project:jira",
+      "read:issue-type-scheme:jira"
+    ]
+  },
+  "needOwnApp": {
+    "verdict": "recommended_for_production",
+    "reasons": [
+      "Every Atlassian OAuth app gets one 65,000-point hourly API quota shared across all the sites it is used on. On a shared app, other developers' traffic counts against the same quota, and when it runs out every request fails until the hour resets. Your own app gives you your own quota.",
+      "Your users see your app name on Atlassian's consent screen instead of a third party's.",
+      "Composio's Jira toolkit page and its managed-OAuth directory both say Composio provides a managed Jira app, so you can test with no setup. An older Composio Jira credentials guide says the opposite; trust the toolkit page."
+    ],
+    "claimIds": [
+      "c13",
+      "c19",
+      "c20"
+    ]
+  },
+  "verdict": {
+    "difficulty": 2,
+    "summary": "Self-serve, no approval needed to go live. You can register the app and connect your own Jira in under an hour, and open it to all your users the same day by switching on sharing. Until Atlassian reviews the app, users see a 'not yet reviewed by Atlassian' warning on the consent screen, and Atlassian publishes no timeline for that review.",
+    "timeToTesting": {
+      "min": 20,
+      "max": 45,
+      "unit": "minutes",
+      "label": "20-45 min",
+      "claimIds": [
+        "c1",
+        "c21"
+      ]
+    },
+    "timeToProduction": {
+      "min": 0,
+      "max": 1,
+      "unit": "days",
+      "label": "Same day with a warning on the consent screen. Removing the warning: Atlassian review, no published timeline",
+      "claimIds": [
+        "c6",
+        "c7",
+        "c8",
+        "c17"
+      ]
+    },
+    "mainBlocker": "The 'not yet reviewed by Atlassian' warning your users see until Atlassian reviews the app, and customer sites whose admins block user-installed apps.",
+    "confidence": "medium"
+  },
+  "stages": [
+    {
+      "name": "Register the app",
+      "duration": {
+        "min": 15,
+        "max": 30,
+        "unit": "minutes",
+        "label": "15-30 min",
+        "claimIds": [
+          "c21"
+        ]
+      },
+      "limits": [
+        "There is no API for creating Atlassian OAuth apps. This stage has to be done in the browser.",
+        "One callback URL per app."
+      ],
+      "steps": [
+        {
+          "title": "Create an OAuth 2.0 integration",
+          "detail": "In the Atlassian developer console, choose Create, then OAuth 2.0 integration. Name it after your product: this is the name your users see on the consent screen. Pick a grant type: resource-level limits each user's consent to the sites they select; account-level covers every site the user has.",
+          "actor": "human",
+          "humanReason": "Requires signing in to your Atlassian account, and Atlassian offers no API for app creation.",
+          "links": [
+            {
+              "label": "Developer console",
+              "url": "https://developer.atlassian.com/console/myapps/"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c1",
+            "c2",
+            "c3"
+          ]
+        },
+        {
+          "title": "Set the callback URL",
+          "detail": "Open Authorization, choose OAuth 2.0 (3LO) and paste Composio's redirect URI. Copy it from your Composio dashboard when you create the Jira auth config. Do not copy it from older guides: Composio's Jira credentials page shows a /api/v1/ path that its own knowledge base calls legacy.",
+          "actor": "human",
+          "humanReason": "Inside your signed-in developer console.",
+          "links": [
+            {
+              "label": "Composio dashboard",
+              "url": "https://platform.composio.dev"
+            },
+            {
+              "label": "Composio Jira notes",
+              "url": "https://docs.composio.dev/kb/guide/toolkits-jira"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Callback URL",
+              "value": "Copy from Composio: Auth Configs > Create Auth Config > Jira > OAuth2"
+            }
+          ],
+          "claimIds": [
+            "c4",
+            "c19",
+            "c20"
+          ]
+        },
+        {
+          "title": "Add APIs and scopes",
+          "detail": "Open Permissions and add the Jira API. Add Jira Software only if you use sprint or board tools, and Jira Service Management only if you use service desk tools. Then choose Configure to add the individual scopes. Add only the scopes your agent's tools need: an app can request at most 50, and the consent screen fails if you request a scope you haven't added here.",
+          "actor": "either",
+          "links": [
+            {
+              "label": "Jira scopes reference",
+              "url": "https://developer.atlassian.com/cloud/jira/platform/scopes-for-oauth-2-3LO-and-forge-apps/"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Core scopes (issues, projects, users)",
+              "value": "read:jira-work write:jira-work read:jira-user offline_access"
+            },
+            {
+              "label": "Add for sprints and boards",
+              "value": "read:sprint:jira-software write:sprint:jira-software read:board-scope:jira-software write:board-scope:jira-software"
+            }
+          ],
+          "claimIds": [
+            "c5",
+            "c19",
+            "c22"
+          ]
+        },
+        {
+          "title": "Copy the Client ID and Secret",
+          "detail": "Open Settings and copy the Client ID and Secret. Treat the secret like a password: it goes into Composio and nowhere else.",
+          "actor": "human",
+          "humanReason": "The secret should only pass from your console to Composio.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "c1"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Connect it in Composio and test",
+      "duration": {
+        "min": 5,
+        "max": 15,
+        "unit": "minutes",
+        "label": "5-15 min",
+        "claimIds": [
+          "c21"
+        ]
+      },
+      "limits": [
+        "While the app is private, only you (the owner) can authorize it."
+      ],
+      "steps": [
+        {
+          "title": "Create the Jira auth config in Composio",
+          "detail": "Create an OAuth2 auth config for Jira with your Client ID, Client Secret and the same scopes you added in Atlassian, including offline_access. Without offline_access (and audience=api.atlassian.com, which Composio sets), you get no refresh token and the connection dies within an hour.",
+          "actor": "either",
+          "links": [
+            {
+              "label": "Custom auth configs",
+              "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Token URL",
+              "value": "https://auth.atlassian.com/oauth/token"
+            }
+          ],
+          "claimIds": [
+            "c10",
+            "c19",
+            "c20"
+          ]
+        },
+        {
+          "title": "Connect your own Jira site",
+          "detail": "Start a connection with your Jira site's base URL, https://<your-site>.atlassian.net, approve the consent screen and run one read tool (for example, list projects) to confirm it works.",
+          "actor": "human",
+          "humanReason": "You approve the consent screen with your own Atlassian account.",
+          "links": [],
+          "preparedValues": [
+            {
+              "label": "Base URL format",
+              "value": "https://<your-site>.atlassian.net"
+            }
+          ],
+          "claimIds": [
+            "c19"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Open it to your users",
+      "duration": {
+        "min": 0,
+        "max": 1,
+        "unit": "days",
+        "label": "Same day, plus engineering time if you store personal data",
+        "claimIds": [
+          "c6",
+          "c7",
+          "c8",
+          "c9"
+        ]
+      },
+      "limits": [
+        "Users see a 'not yet been reviewed by Atlassian' warning until Atlassian reviews the app. They can still continue.",
+        "One 65,000-point hourly API quota shared across all your customers' sites. Exceeding it blocks every request until the next hour.",
+        "Refresh tokens expire after 90 days without use; the user then has to reconnect."
+      ],
+      "steps": [
+        {
+          "title": "Switch on sharing",
+          "detail": "Open Distribution, choose Edit and set the status to Sharing. Fill in the vendor name and privacy policy URL. Answer whether your app stores personal data; if it does, you must confirm you have implemented Atlassian's personal data reporting API.",
+          "actor": "human",
+          "humanReason": "The vendor details and the personal-data answer are declarations your company makes to Atlassian.",
+          "links": [
+            {
+              "label": "Managing OAuth apps",
+              "url": "https://developer.atlassian.com/cloud/oauth/getting-started/managing-oauth-apps/"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c6",
+            "c8"
+          ]
+        },
+        {
+          "title": "Report personal data (only if you store it)",
+          "detail": "Apps that store Atlassian users' personal data must report those accounts through the personal data reporting API, by default every 7 days (follow the Cycle-Period header if it returns a different period).",
+          "actor": "agent",
+          "links": [
+            {
+              "label": "User privacy guide",
+              "url": "https://developer.atlassian.com/cloud/jira/platform/user-privacy-developer-guide/"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Endpoint for OAuth 2.0 apps",
+              "value": "POST https://api.atlassian.com/app/report-accounts/"
+            }
+          ],
+          "claimIds": [
+            "c9"
+          ]
+        },
+        {
+          "title": "Optional: request Atlassian's review to remove the warning",
+          "detail": "Follow Atlassian's third-party integration listing process. You do not need a Marketplace listing to ask for review. Atlassian publishes no review timeline; the most recent public wait-time reports are from 2020 and describe delays of weeks to months.",
+          "actor": "human",
+          "humanReason": "A submission made on behalf of your company.",
+          "links": [
+            {
+              "label": "Listing a third-party integration",
+              "url": "https://developer.atlassian.com/platform/marketplace/knowledge-base/listing-a-third-party-integration-on-the-atlassian-marketplace/"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c7",
+            "c17",
+            "c18"
+          ]
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "title": "Vendor name and privacy policy URL",
+      "detail": "Required before you can switch on sharing. An Atlassian staff member described them as mostly form fields, but use your real company and policy.",
+      "claimIds": [
+        "c8",
+        "c16"
+      ]
+    },
+    {
+      "title": "Personal data reporting",
+      "detail": "If your app stores Atlassian users' personal data, you must report those accounts every 7 days by default.",
+      "claimIds": [
+        "c9"
+      ]
+    },
+    {
+      "title": "At most 50 scopes per app",
+      "detail": "Request only the scopes your tools use. Adding scopes later makes existing users consent again.",
+      "claimIds": [
+        "c5",
+        "c22"
+      ]
+    },
+    {
+      "title": "Refresh tokens rotate and expire after 90 days of inactivity",
+      "detail": "Each refresh issues a new refresh token. A user who goes 90 days without the connection being used must reconnect.",
+      "claimIds": [
+        "c10"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "title": "Callback URL mismatch",
+      "symptom": "The consent screen errors before the user can approve.",
+      "fix": "Make the callback URL in Atlassian identical to the redirect URI in your Composio auth config. Copy it from the Composio dashboard, not from an older guide.",
+      "claimIds": [
+        "c4",
+        "c20"
+      ]
+    },
+    {
+      "title": "Connection stops working after about an hour",
+      "symptom": "Tool calls start failing with auth errors shortly after connecting.",
+      "fix": "No refresh token was issued. Add offline_access to the scopes in both Atlassian and Composio, then reconnect.",
+      "claimIds": [
+        "c10",
+        "c19"
+      ]
+    },
+    {
+      "title": "Consent fails because of scopes",
+      "symptom": "The consent screen errors, or tools fail with permission errors.",
+      "fix": "Every scope Composio requests must be added in the developer console, and the total must stay at or under 50.",
+      "claimIds": [
+        "c5",
+        "c19"
+      ]
+    },
+    {
+      "title": "Customer's admin blocks user-installed apps",
+      "symptom": "The consent screen tells the user their admin has disabled end-user installs.",
+      "fix": "The customer's Atlassian admin must allow user-installed apps (admin.atlassian.com > Security > Connected apps). The control is all-or-nothing; admins cannot allow a single app.",
+      "claimIds": [
+        "c11",
+        "c12"
+      ]
+    },
+    {
+      "title": "Every customer gets 429 errors at once",
+      "symptom": "All Jira tool calls fail with 429 Too Many Requests until the top of the hour.",
+      "fix": "The app's shared 65,000-point hourly quota is used up. Cut call volume, or ask Atlassian for per-tenant quotas, which needs a review.",
+      "claimIds": [
+        "c13",
+        "c14"
+      ]
+    }
+  ],
+  "handoff": {
+    "agentCan": [
+      "Pick the minimum scopes for the Composio Jira tools you use",
+      "Prepare every value to paste into the developer console",
+      "Create the Composio auth config through Composio's API once you give it the Client ID and Secret through a secure channel",
+      "Draft the privacy-policy section about Jira data, and the vendor details",
+      "Write the personal data reporting job if you store personal data",
+      "Draft the note your customers' admins need if they block user-installed apps"
+    ],
+    "youMust": [
+      "Sign in and create the app in the developer console (Atlassian has no API for this)",
+      "Decide and declare whether your app stores personal data",
+      "Approve the first consent screen to test",
+      "Submit Atlassian's review, if you want the warning removed"
+    ]
+  },
+  "unknowns": [
+    {
+      "question": "Does Composio's Jira toolkit work with resource-level grants, or does it need an account-level grant?",
+      "whyItMatters": "Atlassian asks you to pick one when you create the app.",
+      "askWhom": "Composio support",
+      "draftEmail": "Hi Composio team, when creating an Atlassian OAuth 2.0 integration we must pick an account-level or a resource-level grant. Does the Jira toolkit support both, and is one recommended? Thanks."
+    },
+    {
+      "question": "When Composio stores the tokens, who meets Atlassian's personal data reporting requirement?",
+      "whyItMatters": "Switching on sharing asks you to confirm you've implemented the reporting API if your app stores personal data.",
+      "askWhom": "Composio support",
+      "draftEmail": "Hi Composio team, we're using our own Atlassian OAuth app with Composio. Atlassian requires apps that store users' personal data to report those accounts through its personal data reporting API. Does Composio store personal data for Jira connections in a way we need to report, and does Composio report it for custom apps? Thanks."
+    },
+    {
+      "question": "How long does Atlassian's review take today?",
+      "whyItMatters": "Decides when the consent-screen warning goes away.",
+      "askWhom": "Atlassian developer support",
+      "draftEmail": "Hi Atlassian team, we have an OAuth 2.0 (3LO) integration with sharing enabled and would like it reviewed so users no longer see the 'not yet reviewed' warning. What is the current process, and the typical review time? Thanks."
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "text": "OAuth 2.0 apps are created in the developer console via Create > OAuth 2.0 integration; the Client ID and Secret are under Settings.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+          "title": "Atlassian: OAuth 2.0 (3LO) apps",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "text": "Apps choose an account-level grant (one consent covers multiple sites) or a resource-level grant (consent limited to the sites the user selects).",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+          "title": "Atlassian: OAuth 2.0 (3LO) apps",
+          "quote": "Resource-level grant: The user's consent is limited to the specific site(s) they select on the consent screen",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "text": "Atlassian has no API for creating OAuth apps; registration happens in the developer console.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://apievangelist.com/2026/08/29/atlassian-three-legged-oauth-console-first/",
+          "title": "API Evangelist: Atlassian makes you click through a console (Aug 2026)",
+          "quote": "There is no API to create an OAuth app. None.",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "text": "The redirect_uri in the authorization request must match the app's callback URL, and each app has a single redirect URI.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+          "title": "Atlassian: OAuth 2.0 (3LO) apps",
+          "quote": "the redirect_uri must match this URL",
+          "accessedAt": "2026-10-19"
+        },
+        {
+          "url": "https://community.developer.atlassian.com/t/atlassian-oauth-2-0-3lo-is-broken-by-design-heres-why-it-s-a-problem/91300",
+          "title": "Atlassian developer community: single redirect URI limitation (Apr 2025)",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c5",
+      "text": "Scopes are added per API under Permissions > Configure; only scopes added there can be requested, and users must re-consent after scopes change.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+          "title": "Atlassian: OAuth 2.0 (3LO) apps",
+          "quote": "users who previously consented to the scopes will need to re-consent to the new scopes",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c6",
+      "text": "Apps are private by default; enabling sharing under Distribution lets other users authorize via the authorization URL.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/oauth/getting-started/managing-oauth-apps/",
+          "title": "Atlassian: Managing OAuth apps",
+          "quote": "When you create an OAuth 2.0 (3LO) app, it's private by default.",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c7",
+      "text": "Users installing an unapproved integration are warned it has not been reviewed by Atlassian, but can still proceed; review is separate from Marketplace listing.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/oauth/getting-started/managing-oauth-apps/",
+          "title": "Atlassian: Managing OAuth apps",
+          "quote": "Users trying to install an unapproved OAuth 2.0 integration are warned that the app has not yet been reviewed by Atlassian.",
+          "accessedAt": "2026-10-19"
+        },
+        {
+          "url": "https://community.developer.atlassian.com/t/do-i-really-need-to-list-my-oauth-2-0-3lo-app-on-marketplace-to-share-with-other-people/69937",
+          "title": "Atlassian staff answer (May 2023): no Marketplace listing needed; users see a warning but can proceed",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c8",
+      "text": "Switching on sharing requires a vendor name, a privacy policy URL and a personal-data declaration, with a confirmation that the reporting API is implemented if personal data is stored.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://help.merge.dev/articles/9111358716-atlassian-partnership",
+          "title": "Merge help center: Atlassian partner credentials",
+          "accessedAt": "2026-10-19"
+        },
+        {
+          "url": "https://community.developer.atlassian.com/t/do-i-really-need-to-list-my-oauth-2-0-3lo-app-on-marketplace-to-share-with-other-people/69937",
+          "title": "Atlassian developer community thread (Jul 2023 follow-up on mandatory fields)",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c9",
+      "text": "Apps storing personal data must report accounts via the personal data reporting API, every 7 days by default; OAuth 2.0 apps use POST https://api.atlassian.com/app/report-accounts/.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/jira/platform/user-privacy-developer-guide/",
+          "title": "Atlassian: User privacy guide for app developers",
+          "quote": "By default, the cycle period is every 7 days.",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c10",
+      "text": "Refresh tokens require offline_access, rotate on each use, and expire after 90 days of inactivity.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+          "title": "Atlassian: OAuth 2.0 (3LO) apps",
+          "quote": "A rotating refresh token expires if the user is inactive for this period.",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c11",
+      "text": "Site admins can block end users from installing OAuth 2.0 (3LO) apps; users then see an alert on the consent screen.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://community.atlassian.com/forums/App-Central-articles/Introducing-a-new-control-for-end-user-OAuth-2-0-3LO-app/ba-p/1966912",
+          "title": "Atlassian Community announcement: control for end-user OAuth 2.0 (3LO) app installs",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c12",
+      "text": "The admin control is global; per-app allow or block lists are an open feature request.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://jira.atlassian.com/browse/OAUTH20-2493",
+          "title": "Atlassian issue tracker: allow/block lists for OAuth 2.0 (3LO) apps",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c13",
+      "text": "Since March 2, 2026, OAuth 2.0 (3LO) apps share a single 65,000-point hourly quota across all tenants by default; exceeding it returns 429 until the next hour.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/jira/platform/rate-limiting",
+          "title": "Atlassian: Jira rate limiting",
+          "quote": "Your app shares a single 65,000 point hourly quota across all tenants.",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c14",
+      "text": "Per-tenant quotas require a review by Atlassian.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/jira/platform/rate-limiting",
+          "title": "Atlassian: Jira rate limiting",
+          "quote": "Quota increases require a review by Atlassian for Tier 2 Per-Tenant Pool eligibility.",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c16",
+      "text": "An Atlassian staff member said the vendor name and privacy policy fields have no immediate consequences if filled with placeholder values.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://community.developer.atlassian.com/t/do-i-really-need-to-list-my-oauth-2-0-3lo-app-on-marketplace-to-share-with-other-people/69937",
+          "title": "Atlassian developer community thread (Jul 2023)",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c17",
+      "text": "Atlassian publishes no review timeline. In 2020 developers reported waits of several weeks to over two months, and Atlassian staff called the process labour-intensive with excessive delays.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://community.developer.atlassian.com/t/how-long-does-it-take-to-get-3lo-approval/32415?page=2",
+          "title": "Atlassian developer community: How long does it take to get 3LO approval? (2020)",
+          "quote": "our 3LO app approval process is labor intensive which has resulted in excessive delays",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c18",
+      "text": "A Marketplace listing is not needed to submit the integration for review.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps/",
+          "title": "Atlassian: OAuth 2.0 (3LO) apps",
+          "quote": "you don't need an informative Atlassian Marketplace listing to submit your integration for approval",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c19",
+      "text": "Composio's Jira guide lists 18 default scopes, says Composio does not provide managed Jira credentials, and warns that without audience=api.atlassian.com Atlassian may not honour offline_access. Connections need the site base URL https://<subdomain>.atlassian.net.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://composio.dev/auth/jira",
+          "title": "Composio: How to create OAuth2 credentials for Jira",
+          "quote": "For Jira, Composio does not provide managed OAuth credentials.",
+          "accessedAt": "2026-10-19"
+        },
+        {
+          "url": "https://docs.composio.dev/kb/guide/toolkits-jira",
+          "title": "Composio KB: Jira toolkit",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c20",
+      "text": "Composio's Jira toolkit page and managed-OAuth directory say Composio-managed OAuth is available for Jira; the older Jira credentials guide says it is not and shows a /api/v1/ redirect URI that the knowledge base calls legacy.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/toolkits/jira",
+          "title": "Composio: Jira toolkit",
+          "quote": "Composio-managed OAuth available? Yes",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://docs.composio.dev/toolkits/managed-auth",
+          "title": "Composio: Managed OAuth apps",
+          "accessedAt": "2026-10-19"
+        },
+        {
+          "url": "https://docs.composio.dev/kb/guide/toolkits-jira",
+          "title": "Composio KB: Jira toolkit",
+          "quote": "don't reuse legacy v1 or v3 callback paths",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "c21",
+      "text": "Setup durations are estimates from the number of console steps; not yet timed in a real attempt.",
+      "evidence": "unknown",
+      "sources": []
+    },
+    {
+      "id": "c22",
+      "text": "Atlassian limits an OAuth app to 50 scopes.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/kb/guide/toolkits-jira",
+          "title": "Composio KB: Jira toolkit",
+          "quote": "Jira/Atlassian limits an OAuth app to 50 scopes",
+          "accessedAt": "2026-10-19"
+        }
+      ]
+    }
+  ]
+}

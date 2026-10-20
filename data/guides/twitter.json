@@ -1,0 +1,1050 @@
+{
+  "slug": "twitter",
+  "name": "Twitter / X",
+  "provider": "X Corp.",
+  "developerPortalUrl": "https://console.x.com",
+  "generatedAt": "2026-10-20",
+  "pipelineVersion": "library-manual-research",
+  "authTypes": [
+    "oauth2",
+    "oauth1",
+    "bearer"
+  ],
+  "composio": {
+    "toolkitSlug": "TWITTER",
+    "managedOAuth": false,
+    "scopes": []
+  },
+  "needOwnApp": {
+    "verdict": "required",
+    "reasons": [
+      "Composio removed its managed Twitter credentials in February 2026. Until you add your own X app's credentials to a custom auth config, the Twitter toolkit does not work at all.",
+      "X bills every API call to the developer account that owns the app, from prepaid credits. Your users' reads and posts are paid for from your credit balance, so the app has to be yours.",
+      "Several Composio Twitter tools (search, post lookup by IDs, usage) call X with an app-only Bearer Token that you paste into the auth config, and it must come from the same X app as your OAuth Client ID."
+    ],
+    "claimIds": [
+      "c26",
+      "c8",
+      "c28"
+    ]
+  },
+  "verdict": {
+    "difficulty": 2,
+    "summary": "No human review: you sign in to the X Developer Console, accept the developer terms, create an app, buy prepaid credits with a card and a verified phone number, and any X user can connect the same day. The real barriers are cost and terms: every read and post is billed per call (a post with a link costs $0.20), self-serve access is meant for apps with 'a limited number of end-users', and growing past that requires an Enterprise contract that X negotiates case by case.",
+    "timeToTesting": {
+      "min": 30,
+      "max": 60,
+      "unit": "minutes",
+      "label": "30-60 min, plus a card payment for credits",
+      "claimIds": [
+        "c1",
+        "c16",
+        "c34"
+      ]
+    },
+    "timeToProduction": {
+      "min": 0,
+      "max": 1,
+      "unit": "days",
+      "label": "Same day on pay-per-use. Enterprise, if X asks you to move to it: no published timeline",
+      "claimIds": [
+        "c8",
+        "c17",
+        "c19"
+      ]
+    },
+    "mainBlocker": "Money and terms, not review: per-call billing from prepaid credits, X's rule that self-serve access only covers apps with a limited number of end-users, and API restrictions on what an agent may do (no programmatic follows or likes, replies only when summoned).",
+    "confidence": "medium"
+  },
+  "stages": [
+    {
+      "name": "Create the developer account and app",
+      "duration": {
+        "min": 15,
+        "max": 30,
+        "unit": "minutes",
+        "label": "15-30 min",
+        "claimIds": [
+          "c34"
+        ]
+      },
+      "limits": [
+        "The app's credentials (keys, secret, Bearer Token) are shown only once. Regenerating them invalidates the old ones.",
+        "Up to 10 callback URLs per app, matched exactly, including trailing slashes."
+      ],
+      "steps": [
+        {
+          "title": "Sign up in the X Developer Console",
+          "detail": "Go to console.x.com and sign in with the X account that should own the app. Use a company-controlled account, not a personal one: the app, its credits and its billing all belong to this account. Accept the Developer Agreement and Policy and describe how you will use the API. There is no approval queue for this step in X's current docs.",
+          "actor": "human",
+          "humanReason": "Requires signing in to an X account and accepting X's legal terms on behalf of your company.",
+          "links": [
+            {
+              "label": "X Developer Console",
+              "url": "https://console.x.com"
+            },
+            {
+              "label": "X: Getting access",
+              "url": "https://docs.x.com/x-api/getting-started/getting-access"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Use case description (draft, edit to match your product)",
+              "value": "Our product is an AI assistant that lets each user connect their own X account with OAuth 2.0 and, at that user's request, read their timeline, mentions and bookmarks and publish posts they approve. We do not use X content to train models, and we do not automate follows, likes or unsolicited replies."
+            }
+          ],
+          "claimIds": [
+            "c1",
+            "c22",
+            "c23"
+          ]
+        },
+        {
+          "title": "Create the app",
+          "detail": "From the console dashboard, create a new app with a name, description and use case. Name it after your product. Save the API Key and Secret and the Bearer Token immediately: Composio needs the Bearer Token for its app-only tools, and the console does not show it again.",
+          "actor": "human",
+          "humanReason": "Inside your signed-in developer console; the credentials should pass only from the console to Composio.",
+          "links": [
+            {
+              "label": "X: Apps",
+              "url": "https://docs.x.com/resources/fundamentals/developer-apps"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c1",
+            "c39",
+            "c28"
+          ]
+        },
+        {
+          "title": "Set up OAuth 2.0 in User authentication settings",
+          "detail": "Open the app's User authentication settings and turn on OAuth 2.0. Choose Web App (or Automated App / Bot): both are confidential clients and get a Client Secret, which Composio needs. Native App and Single Page App are public clients and get no secret. Set permissions to read and write (add Direct Messages only if you use DM tools). Paste Composio's redirect URI as the callback URL. Copy it from your Composio auth config, not from Composio's older Twitter guide, which still shows a /api/v1/ path that Composio's own knowledge base calls legacy. Fill in the website URL with your product's site.",
+          "actor": "human",
+          "humanReason": "Inside your signed-in developer console.",
+          "links": [
+            {
+              "label": "Composio dashboard",
+              "url": "https://platform.composio.dev"
+            },
+            {
+              "label": "Composio Twitter notes",
+              "url": "https://docs.composio.dev/kb/guide/toolkits-twitter"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Type of app",
+              "value": "Web App, Automated App or Bot (confidential client)"
+            },
+            {
+              "label": "Callback URI / Redirect URL",
+              "value": "Copy from Composio: Auth Configs > Create Auth Config > Twitter > OAuth2"
+            },
+            {
+              "label": "Website URL",
+              "value": "Your product's public homepage (https://)"
+            }
+          ],
+          "claimIds": [
+            "c2",
+            "c3",
+            "c4",
+            "c27"
+          ]
+        },
+        {
+          "title": "Copy the Client ID and Client Secret",
+          "detail": "Open Keys and Tokens and copy the OAuth 2.0 Client ID and Client Secret. Treat the secret like a password: it goes into Composio and nowhere else.",
+          "actor": "human",
+          "humanReason": "The secret should only pass from your console to Composio.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "c4",
+            "c39"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Buy credits and enrol in billing",
+      "duration": {
+        "min": 5,
+        "max": 15,
+        "unit": "minutes",
+        "label": "5-15 min",
+        "claimIds": [
+          "c34"
+        ]
+      },
+      "limits": [
+        "No free tier for new developers. Every read and write is charged from prepaid credits.",
+        "If the balance hits zero (it can go slightly negative), API requests are blocked until you add credits.",
+        "Pay-per-use accounts are capped at 3 million Post reads per monthly billing cycle."
+      ],
+      "steps": [
+        {
+          "title": "Add a card and buy credits",
+          "detail": "In the console, add a payment method and buy credits. X requires a verified phone number to buy credits. As of October 2026, a new account's first card and first purchase earn $20 in free credits, and the first successful auto-recharge is matched up to $50. These free credits expire after 3 months and are still rolling out.",
+          "actor": "human",
+          "humanReason": "A payment and a phone verification on your company's account.",
+          "links": [
+            {
+              "label": "X API pricing",
+              "url": "https://docs.x.com/x-api/getting-started/pricing"
+            },
+            {
+              "label": "Free credit incentives",
+              "url": "https://docs.x.com/x-api/getting-started/free-credits"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c8",
+            "c15",
+            "c16"
+          ]
+        },
+        {
+          "title": "Set a spending limit and auto-recharge",
+          "detail": "Set a spending limit per billing cycle so a looping agent cannot run up a bill: when the limit is reached, requests are blocked until the next cycle. Turn on auto-recharge if you want the connection to keep working when the balance runs low. Auto-recharge fires at most once per 5 minutes, so set the recharge amount high enough to cover a burst.",
+          "actor": "human",
+          "humanReason": "A spending decision for your company.",
+          "links": [
+            {
+              "label": "X API pricing: credit balance",
+              "url": "https://docs.x.com/x-api/getting-started/pricing"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Spending limit for testing",
+              "value": "Estimate: $10-25 per billing cycle is enough to test reads and a few posts"
+            }
+          ],
+          "claimIds": [
+            "c35",
+            "c34"
+          ]
+        },
+        {
+          "title": "Check the app is attached to a project enrolled in pay-per-use",
+          "detail": "If writes fail with a 403 'Client Forbidden' body containing registration_url and required_enrollment, or Composio shows client-not-enrolled or 'App not linked to project', the app is not attached to a project that is enrolled in pay-per-use billing. Attach it in the console and retry.",
+          "actor": "human",
+          "humanReason": "Inside your signed-in developer console.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "c29",
+            "c30"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Connect it in Composio and test",
+      "duration": {
+        "min": 10,
+        "max": 15,
+        "unit": "minutes",
+        "label": "10-15 min",
+        "claimIds": [
+          "c34"
+        ]
+      },
+      "limits": [
+        "Access tokens last 2 hours. Without offline.access there is no refresh token and the connection dies after 2 hours.",
+        "Each test call costs credits, for example $0.005 per post read and $0.015 per post created."
+      ],
+      "steps": [
+        {
+          "title": "Create the Twitter auth config in Composio",
+          "detail": "Create a Twitter auth config, toggle on your own developer credentials and enter the Client ID, Client Secret and Bearer Token from the same X app. Composio pre-fills scopes; remove those your agent does not use, and keep offline.access. Copy the auth config ID (it starts with ac_) into your secret manager.",
+          "actor": "either",
+          "links": [
+            {
+              "label": "Composio: Twitter OAuth credentials",
+              "url": "https://composio.dev/auth/twitter"
+            },
+            {
+              "label": "Composio Twitter toolkit",
+              "url": "https://docs.composio.dev/toolkits/twitter"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Minimum scopes to read and post",
+              "value": "tweet.read tweet.write users.read offline.access"
+            },
+            {
+              "label": "Add for media in posts",
+              "value": "media.write"
+            },
+            {
+              "label": "Add for bookmarks, lists, DMs (only if used)",
+              "value": "bookmark.read bookmark.write list.read list.write dm.read dm.write"
+            }
+          ],
+          "claimIds": [
+            "c31",
+            "c5",
+            "c6"
+          ]
+        },
+        {
+          "title": "Connect your own X account and run one tool",
+          "detail": "Start a connection, approve X's consent screen, and run one cheap read (for example, look up your own user) and one post. If app-only tools such as search return 401 while user tools work, the Bearer Token is from a different app or your plan does not include that endpoint.",
+          "actor": "human",
+          "humanReason": "You approve the consent screen with your own X account.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "c28",
+            "c9"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Open it to your users",
+      "duration": {
+        "min": 0,
+        "max": 1,
+        "unit": "days",
+        "label": "Same day: no review or publishing switch",
+        "claimIds": [
+          "c17",
+          "c34"
+        ]
+      },
+      "limits": [
+        "Self-serve access is for apps with 'a limited number of end-users'. X does not define the number; beyond it, X's terms require an Enterprise plan.",
+        "POST /2/tweets: 100 per 15 minutes per user, 10,000 per 24 hours per app, shared by all your users.",
+        "Replies only when the original author mentioned or quoted the replying account. Follows, likes and quote posts are not available on self-serve access.",
+        "X's terms forbid using X content to train or fine-tune a foundation or frontier model."
+      ],
+      "steps": [
+        {
+          "title": "Budget per user before launch",
+          "detail": "Every user's activity is billed to your credits. Posts with a URL cost $0.20 each, plain posts $0.015, post reads $0.005 and user reads $0.010. The cheaper $0.001 'Owned Reads' price only applies when the authenticated user is the owner of the developer app, so it does not cover your end users' own data. Rate limits are counted separately from billing: posting is capped at 100 per 15 minutes per user and 10,000 per 24 hours for the whole app.",
+          "actor": "agent",
+          "links": [
+            {
+              "label": "X API pricing",
+              "url": "https://docs.x.com/x-api/getting-started/pricing"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c9",
+            "c13",
+            "c12",
+            "c21"
+          ]
+        },
+        {
+          "title": "Remove tools X no longer allows on self-serve",
+          "detail": "Since April 20, 2026, following, likes and quote posts through the API are off for all self-serve accounts, so Composio tools such as TWITTER_FOLLOW_USER will fail. Since February 23, 2026, programmatic replies only work when the original author mentioned or quoted the replying account. Post analytics need Enterprise. Disable these tools in your agent so it does not retry them.",
+          "actor": "agent",
+          "links": [
+            {
+              "label": "X API changelog",
+              "url": "https://docs.x.com/changelog"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c12",
+            "c14",
+            "c32"
+          ]
+        },
+        {
+          "title": "Follow X's automation rules",
+          "detail": "Get each user's explicit consent before your agent sends automated replies or DMs, never do bulk actions, and label any bot account as automated. Apps that break the rules can be suspended; X notifies by email and appeals go through the Platform Help Form.",
+          "actor": "either",
+          "links": [
+            {
+              "label": "X Developer Policy",
+              "url": "https://docs.x.com/developer-terms/policy"
+            },
+            {
+              "label": "Platform Help Form",
+              "url": "https://help.x.com/forms/platform"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c23",
+            "c36"
+          ]
+        },
+        {
+          "title": "Apply for Enterprise if you outgrow self-serve",
+          "detail": "If your user base or read volume goes beyond what self-serve covers (3 million post reads a month, or more than 'a limited number of end-users'), apply through X's Enterprise interest form. Pricing is negotiated; X publishes none, and third-party guides cite entry prices of about $42,000-50,000 a month. X can also review your usage on its own, suspend access and require an Enterprise application.",
+          "actor": "human",
+          "humanReason": "A commercial negotiation and contract for your company.",
+          "links": [
+            {
+              "label": "Enterprise API pricing",
+              "url": "https://docs.x.com/enterprise-api/getting-started/pricing"
+            },
+            {
+              "label": "Enterprise interest form",
+              "url": "https://docs.x.com/forms/enterprise-api-interest"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c10",
+            "c17",
+            "c18",
+            "c19",
+            "c20"
+          ]
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "title": "A card, prepaid credits and a verified phone number",
+      "detail": "There is no free tier for new developers. Credits are bought upfront and deducted per call. Legacy Basic and Pro subscriptions are being moved to pay-per-use during 2026, so there is no fixed monthly tier to pick.",
+      "claimIds": [
+        "c8",
+        "c11",
+        "c16",
+        "c24",
+        "c25"
+      ]
+    },
+    {
+      "title": "Stay within self-serve scope, or move to Enterprise",
+      "detail": "X's pay-per-use agreement limits self-serve to hobbyists, prototyping, early-stage integrations and apps with a limited number of end-users. Beyond that you must apply for Enterprise.",
+      "claimIds": [
+        "c17",
+        "c18"
+      ]
+    },
+    {
+      "title": "offline.access for long-lived connections",
+      "detail": "Without it, X issues no refresh token and the access token expires after 2 hours.",
+      "claimIds": [
+        "c5"
+      ]
+    },
+    {
+      "title": "No model training on X content",
+      "detail": "The agreement forbids using the X API or X content to fine-tune or train a foundation or frontier model. Keep X data out of any training pipeline.",
+      "claimIds": [
+        "c22"
+      ]
+    },
+    {
+      "title": "Automation rules for write actions",
+      "detail": "Explicit consent before automated replies or DMs, no bulk actions, and bot accounts must say they are bots.",
+      "claimIds": [
+        "c23"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "title": "Callback URL not approved",
+      "symptom": "X returns error 415 'Callback URL not approved for this client application.' before the consent screen.",
+      "fix": "Make the callback URL in the X app identical to the redirect URI in your Composio auth config, including any trailing slash. Copy it from the Composio dashboard, not from the older /api/v1/ path in Composio's Twitter guide.",
+      "claimIds": [
+        "c3",
+        "c27"
+      ]
+    },
+    {
+      "title": "Writes fail with 403 'Client Forbidden' or client-not-enrolled",
+      "symptom": "Reads may work but posts fail; the body mentions registration_url and required_enrollment, or Composio reports client-not-enrolled or 'App not linked to project'.",
+      "fix": "Attach the app to a project and enrol that project in pay-per-use billing in the console, then reconnect.",
+      "claimIds": [
+        "c29",
+        "c30"
+      ]
+    },
+    {
+      "title": "Requests blocked after the balance runs out",
+      "symptom": "Every call fails once credits reach zero or the spending limit is hit.",
+      "fix": "Add credits, raise the spending limit, or turn on auto-recharge with a recharge amount that outlasts a 5-minute burst.",
+      "claimIds": [
+        "c35"
+      ]
+    },
+    {
+      "title": "Connection dies after 2 hours, or refresh fails with invalid_request",
+      "symptom": "Tools start failing with auth errors shortly after connecting, or token refresh returns 'Value passed for the token was invalid'.",
+      "fix": "Make sure offline.access is in the scopes in both the X app request and Composio, then reconnect. Developers report that X refresh tokens are single-use, so two processes refreshing the same token at once break the connection; let Composio be the only thing that refreshes it.",
+      "claimIds": [
+        "c5",
+        "c33"
+      ]
+    },
+    {
+      "title": "Replies, follows or likes fail while plain posts work",
+      "symptom": "Reply posts are refused, and follow or like tools fail.",
+      "fix": "These are X restrictions on self-serve access, not an auth problem. Replies only work when the original author mentioned or quoted the replying account; follows, likes and quote posts are off for self-serve. Re-authorizing does not help.",
+      "claimIds": [
+        "c12",
+        "c14"
+      ]
+    },
+    {
+      "title": "App-only tools return 401 while user tools work",
+      "symptom": "Search, post lookup by IDs or usage tools fail with 401.",
+      "fix": "Put the Bearer Token from the same X app as your OAuth Client ID into the Composio auth config. Adding user scopes does not fix it.",
+      "claimIds": [
+        "c28"
+      ]
+    }
+  ],
+  "handoff": {
+    "agentCan": [
+      "Pick the minimum scopes for the Composio Twitter tools you use, always including offline.access",
+      "Draft the use-case description for the developer console",
+      "Prepare every value to paste into the User authentication settings",
+      "Create the Composio auth config through Composio's API once you give it the Client ID, Secret and Bearer Token through a secure channel",
+      "Estimate monthly credit cost per user from X's price list and propose a spending limit",
+      "Disable tools X blocks on self-serve (follows, likes, quote posts, analytics) and add a check that replies are only sent when summoned"
+    ],
+    "youMust": [
+      "Sign in to the X Developer Console and accept the Developer Agreement and Policy",
+      "Create the app and copy its credentials (shown only once)",
+      "Verify a phone number, add a card and buy credits",
+      "Set the spending limit and auto-recharge",
+      "Approve the first consent screen to test",
+      "Decide when your user count needs an Enterprise contract, and negotiate it"
+    ]
+  },
+  "unknowns": [
+    {
+      "question": "How many end-users does X consider 'a limited number' for self-serve access?",
+      "whyItMatters": "Above it, X's terms say you must move to Enterprise, which is negotiated and reportedly costs tens of thousands of dollars a month. For an agent product this is the line between a cheap integration and a large contract.",
+      "askWhom": "X Developer Platform support (developer console help, or the Enterprise interest form)",
+      "draftEmail": "Hi X Developer Platform team, we are building an AI assistant where each user connects their own X account with OAuth 2.0 and our app reads their timeline and publishes posts they approve. Section L of the Developer PPU Agreement limits self-serve plans to applications with 'a limited number of end-users'. Is there a number or volume at which you expect us to move to Enterprise, and do connected OAuth users count as end-users? Thanks."
+    },
+    {
+      "question": "Which OAuth scopes does Composio's Twitter auth config pre-fill?",
+      "whyItMatters": "Composio's docs say scopes are pre-filled but do not list them. You need to know them to trim unused ones before users consent.",
+      "askWhom": "Your Composio dashboard (open the Twitter auth config), or Composio support",
+      "draftEmail": "Hi Composio team, the Twitter auth config pre-fills OAuth 2.0 scopes, but the toolkit docs don't list them. Which scopes are pre-filled by default, and which tools need each one? Thanks."
+    },
+    {
+      "question": "What is the exact current Composio redirect URI for Twitter?",
+      "whyItMatters": "Composio's Twitter credentials guide shows https://backend.composio.dev/api/v1/auth-apps/add, while its knowledge base says not to use legacy v1 callbacks. A mismatch makes X reject the login.",
+      "askWhom": "Your Composio dashboard, or Composio support",
+      "draftEmail": "Hi Composio team, your Twitter OAuth guide lists https://backend.composio.dev/api/v1/auth-apps/add as the callback URL, but the Twitter KB says not to use legacy v1 callbacks. What callback URL should we register in our X app today? Thanks."
+    },
+    {
+      "question": "How long does an Enterprise application take, and can it be declined?",
+      "whyItMatters": "If X reviews your usage and requires Enterprise, your integration depends on that process.",
+      "askWhom": "X Enterprise sales (Enterprise interest form)",
+      "draftEmail": "Hi X Enterprise team, we run an AI assistant on pay-per-use and expect to outgrow self-serve. What is the typical time from submitting the Enterprise interest form to having access, what is the entry price, and are applications ever declined based on use case? Thanks."
+    },
+    {
+      "question": "Is there a minimum credit purchase?",
+      "whyItMatters": "Decides the upfront cost of testing. X documents a $5 minimum for auto-recharge but no minimum for a manual purchase.",
+      "askWhom": "X Developer Platform support",
+      "draftEmail": "Hi X team, what is the minimum one-time credit purchase for a new pay-per-use account? Thanks."
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "text": "Developer access starts at console.x.com: sign in with an X account, accept the Developer Agreement and Policy, give basic information about how you will use the API, then create an app with a name, description and use case.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/x-api/getting-started/getting-access",
+          "title": "X: Getting Access",
+          "quote": "Review and accept the Developer Agreement and Policy.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "text": "OAuth 2.0 app types: Web App and Automated App / Bot are confidential clients and receive a Client Secret; Native App and Single Page App are public clients that use PKCE only.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/resources/fundamentals/developer-apps",
+          "title": "X: Apps",
+          "quote": "Confidential clients receive a Client Secret. Public clients use PKCE only.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "text": "Callback URLs must be on the app's allowlist and match exactly, including trailing slashes; an app can have at most 10; production needs https. A mismatch returns error 415 'Callback URL not approved for this client application.'",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/resources/fundamentals/developer-apps",
+          "title": "X: Apps",
+          "quote": "Callback URL not approved for this client application.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "text": "OAuth 2.0 must be turned on in the app's authentication settings, works with X API v2 only, and the Client ID appears in the app's Keys and Tokens section.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/authorization-code",
+          "title": "X: OAuth 2.0 Authorization Code Flow with PKCE",
+          "quote": "To enable OAuth 2.0 in your App, you must enable it in your App’s authentication settings found in the App settings section of the Developer Console.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c5",
+      "text": "OAuth 2.0 access tokens are valid for two hours; a refresh token is only issued when the offline.access scope is requested.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/authorization-code",
+          "title": "X: OAuth 2.0 Authorization Code Flow with PKCE",
+          "quote": "If this scope is not passed, we will not generate a refresh token.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c6",
+      "text": "X's OAuth 2.0 scopes include tweet.read, tweet.write, users.read, offline.access, media.write, bookmark.read, bookmark.write, list.read, list.write, dm.read and dm.write, among others.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/authorization-code",
+          "title": "X: OAuth 2.0 Authorization Code Flow with PKCE",
+          "quote": "Stay connected to your account until you revoke access.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c8",
+      "text": "The X API uses pay-per-usage pricing: credits are bought upfront in the Developer Console and deducted as requests are made, with no subscription or minimum spend.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/x-api/getting-started/pricing",
+          "title": "X: X API pay-per-usage pricing and credits",
+          "quote": "Purchase credits upfront in the Developer Console. Credits are deducted as you make API requests.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c9",
+      "text": "Current pay-per-use prices: Post read $0.005, User read $0.010, DM event read $0.010 per resource; Post create $0.015, Post create with URL $0.200, summoned Post $0.010, DM interaction $0.015, user interaction $0.015 per request.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/x-api/getting-started/pricing",
+          "title": "X: X API pay-per-usage pricing and credits",
+          "quote": "Prices are subject to change. Current rates are always available in the Developer Console and on the developer.x.com pricing page.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c10",
+      "text": "Pay-per-use plans are capped at 3 million Post reads per monthly billing cycle; higher volume needs an Enterprise plan.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/x-api/getting-started/pricing",
+          "title": "X: X API pay-per-usage pricing and credits",
+          "quote": "Pay-per-usage plans are capped at 3 million Post reads per monthly billing cycle.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c11",
+      "text": "X launched pay-per-use pricing on February 6, 2026. Public Utility Apps kept free access, recently active Legacy Free users got a one-time $10 voucher, and Basic and Pro stayed available to existing subscribers.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/changelog",
+          "title": "X API changelog: Launch of X API Pay-Per-Use pricing (Feb 6, 2026)",
+          "quote": "Recently active Legacy Free tier users receive a one-time $10 voucher.",
+          "publishedAt": "2026-02-06",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c12",
+      "text": "Effective April 20, 2026, X added $0.001 Owned Reads pricing, raised POST /2/tweets to $0.015 and Posts containing a URL to $0.20, and removed following, likes and quote posts via the API from all self-serve tiers.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/changelog",
+          "title": "X API changelog: X API pricing update (Apr 16, 2026)",
+          "quote": "Following, Likes, and Quote-Posts via the API have been removed from all self-serve tiers.",
+          "publishedAt": "2026-04-16",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c13",
+      "text": "Owned Reads pricing ($0.001 per resource) only applies when the requested user is the authenticated user and that user owns the developer app.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/x-api/getting-started/pricing",
+          "title": "X: X API pay-per-usage pricing and credits",
+          "quote": "The following endpoints qualify for Owned Read pricing when `{id}` matches the authenticated user and that user is the owner of the developer app:",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c14",
+      "text": "Since February 23, 2026, programmatic replies via POST /2/tweets are only allowed when the original Post's author summoned the replier by mentioning or quoting it; this applies to self-serve tiers, not Enterprise.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/changelog",
+          "title": "X API changelog: Addressing LLM-generated spam (Feb 23, 2026)",
+          "quote": "These changes affect self-serve tiers only",
+          "publishedAt": "2026-02-23",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c15",
+      "text": "Since October 2, 2026, new pay-per-use accounts can earn $20 in free credits after their first card and first credit purchase, and a match of their first auto-recharge up to $50. These credits expire 3 months after they are granted and are still rolling out.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/x-api/getting-started/free-credits",
+          "title": "X: Free credit incentives for X API pay-per-use accounts",
+          "quote": "Adding a card on its own no longer qualifies (updated October 13, 2026).",
+          "publishedAt": "2026-10-13",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://docs.x.com/changelog",
+          "title": "X API changelog: Free credit incentives (Oct 2, 2026)",
+          "publishedAt": "2026-10-02",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c16",
+      "text": "A verified phone number is required to buy credits.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/developer-terms/ppu-agreement",
+          "title": "X Developer PPU Agreement",
+          "quote": "A verified phone number is required to purchase Credits.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c17",
+      "text": "X's pay-per-use agreement says self-serve plans are for hobbyists, commercial prototyping, initial development, early-stage integrations and applications with a limited number of end-users; use beyond that requires an Enterprise plan. The number is not defined.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/developer-terms/ppu-agreement",
+          "title": "X Developer PPU Agreement, section L (Self-Serve Use)",
+          "quote": "If you use the X API beyond this scope, then you must apply (or already subscribe to) an Enterprise plan",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c18",
+      "text": "X may review an app's usage at any time, suspend or terminate it, and require an Enterprise application before considering continued use.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/developer-terms/ppu-agreement",
+          "title": "X Developer PPU Agreement, section J (Usage Levels)",
+          "quote": "X may, at any time, review your use of its Licensed Materials under this Agreement, and suspend or terminate your use and require you to file an application for Enterprise access",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c19",
+      "text": "Enterprise plans are custom contracts arranged with X's sales team after an interest-form application; X publishes no price or timeline.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/enterprise-api/getting-started/pricing",
+          "title": "X: Enterprise API pricing and custom plans",
+          "quote": "Pricing is tailored to your specific data volume, endpoint needs, and throughput requirements.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c20",
+      "text": "Third-party guides report Enterprise entry pricing of about $42,000-50,000 a month.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://www.postproxy.dev/blog/x-api-pricing-2026/",
+          "title": "Postproxy: X (Twitter) API Pricing in 2026 (Mar 2026, updated Apr 2026)",
+          "quote": "Publicly cited entry-level pricing starts around $42,000–$50,000/month with fully custom terms.",
+          "publishedAt": "2026-03-12",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c21",
+      "text": "Rate limits apply per user for OAuth user tokens and per app for the Bearer Token. POST /2/tweets allows 10,000 per 24 hours per app and 100 per 15 minutes per user. Rate limits and billing are separate.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/x-api/fundamentals/rate-limits",
+          "title": "X: Rate limits",
+          "quote": "Rate limits and billing are separate",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c22",
+      "text": "X's agreement forbids using the X API or X Content to fine-tune or train a foundation or frontier model.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/developer-terms/ppu-agreement",
+          "title": "X Developer PPU Agreement, section on restrictions",
+          "quote": "use the X API or X Content to fine-tune or train a foundation or frontier model",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c23",
+      "text": "Services that post, follow or send DMs must follow X's Automation Rules: explicit consent before automated replies or DMs, no bulk or aggressive actions, and bot accounts must say what they are and who runs them.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/developer-terms/policy",
+          "title": "X Developer Policy",
+          "quote": "Always get explicit consent before sending people automated replies or Direct Messages",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c24",
+      "text": "Reported: X announced that legacy Basic plans move to pay-per-use automatically after June 1, 2026, at the end of each billing cycle, with auto-recharge of $200 below a $10 balance and a $5,000 monthly spend limit as defaults.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://www.simpmusic.org/blogs/x-legacy-basic-api-plans-moving-to-pay-per-use",
+          "title": "maxrave.dev: X is moving legacy Basic API plans to pay-per-use (May 25, 2026), summarising devcommunity.x.com/t/266305",
+          "quote": "legacy Basic plans are being deprecated and that all Basic subscribers will be automatically migrated to the flagship pay-per-use plan",
+          "publishedAt": "2026-05-25",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c25",
+      "text": "Reported: legacy Pro plans move to pay-per-use at the end of each billing cycle after September 1, 2026, so no subscription tier remains for new or existing self-serve developers.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://opentweet.io/how-to/migrate-x-api-pro-to-pay-per-use",
+          "title": "OpenTweet: Migrate X API Pro to pay-per-use (updated Oct 2026), citing devcommunity.x.com/t/273255",
+          "quote": "Your Pro subscription ends on your cutover date, which is the end of your current billing cycle after September 1, 2026",
+          "publishedAt": "2026-10",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c26",
+      "text": "Composio removed its managed credentials for the Twitter toolkit in February 2026; developers must create their own X app and a custom auth config.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/toolkits/twitter",
+          "title": "Composio: Twitter toolkit",
+          "quote": "As of February 2026, Composio managed credentials for the Twitter toolkit have been removed.",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://docs.composio.dev/docs/changelog/2026/02/12",
+          "title": "Composio changelog: Removal of Composio Managed Credentials for Twitter Toolkit",
+          "publishedAt": "2026-02-12",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://docs.composio.dev/toolkits/managed-auth",
+          "title": "Composio: Managed OAuth apps (Twitter listed under Bring your own OAuth app)",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c27",
+      "text": "Composio's docs conflict on the callback: the Twitter credentials guide shows https://backend.composio.dev/api/v1/auth-apps/add, while the Twitter knowledge base says to use the exact callback the current auth-config flow shows and not a legacy v1 callback.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://composio.dev/auth/twitter",
+          "title": "Composio: How to create Twitter/X OAuth2 credentials",
+          "quote": "https://backend.composio.dev/api/v1/auth-apps/add",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://docs.composio.dev/kb/guide/toolkits-twitter",
+          "title": "Composio KB: Twitter",
+          "quote": "Do not use a legacy v1 callback from older examples.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c28",
+      "text": "Composio's app-only Twitter actions (search, counts, post lookup by IDs, post usage, compliance jobs) use the Application Bearer Token stored in the auth config; a 401 on these while user actions work means the token is from a different app or the plan lacks the endpoint.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/kb/guide/toolkits-twitter",
+          "title": "Composio KB: Twitter",
+          "quote": "Adding user OAuth scopes does not repair an invalid app bearer token.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c29",
+      "text": "Composio says client-not-enrolled and 'App not linked to project' errors usually mean the X app is not connected to a developer project or its setup is stale after X's API model changes.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/kb/guide/toolkits-twitter",
+          "title": "Composio KB: Twitter",
+          "quote": "These errors usually mean the Twitter/X developer app is not correctly connected to a Twitter developer project",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c30",
+      "text": "Reported: since February 2026, apps not attached to a project enrolled in pay-per-use billing get a 403 'Client Forbidden' body with registration_url and required_enrollment fields.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://opentweet.io/answers/x-api-403-forbidden-posting",
+          "title": "OpenTweet: X API 403 Forbidden, six causes (updated Aug 2026)",
+          "publishedAt": "2026-08",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c31",
+      "text": "In Composio, the Twitter auth config comes with pre-filled OAuth2 scopes; you toggle on your own credentials and enter the Client ID, Client Secret and Bearer Token, then use the auth config ID, which starts with ac_.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://composio.dev/auth/twitter",
+          "title": "Composio: How to create Twitter/X OAuth2 credentials",
+          "quote": "The authentication is already set to OAuth2 with prefilled scopes. You can remove scopes you don’t need.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c32",
+      "text": "Composio's Twitter toolkit (version 20261007_00) has 81 tools, including TWITTER_FOLLOW_USER and TWITTER_GET_POST_ANALYTICS; the analytics tool needs an X Enterprise plan and returns 403 on pay-per-use.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/toolkits/twitter",
+          "title": "Composio: Twitter toolkit",
+          "quote": "Requires an X Enterprise API plan.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c33",
+      "text": "Reported: X refresh tokens are single-use; each refresh returns a new one and invalidates the old, so concurrent refreshes fail with invalid_request.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://opentweet.io/how-to/fix-x-oauth-refresh-token-expired",
+          "title": "OpenTweet: Twitter OAuth 2.0 refresh token expired? (2026)",
+          "quote": "refresh tokens are single-use. Every successful refresh returns a brand new refresh token and permanently invalidates the one you just sent.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c34",
+      "text": "Estimate: setup durations and the test budget come from the number of console steps and X's price list; not yet timed in a real attempt.",
+      "evidence": "unknown",
+      "sources": []
+    },
+    {
+      "id": "c35",
+      "text": "Spending limits block requests once reached until the next billing cycle; the balance can go slightly negative, after which requests are blocked until credits are added; auto-recharge fires at most once per 5 minutes.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/x-api/getting-started/pricing",
+          "title": "X: X API pay-per-usage pricing and credits",
+          "quote": "When the limit is reached, API requests will be blocked until the next billing cycle.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c36",
+      "text": "A suspended app is notified by email from the X platform team and can appeal through the Platform Help Form.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/resources/fundamentals/developer-apps",
+          "title": "X: Apps",
+          "quote": "Use the Platform Help Form to appeal.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c39",
+      "text": "App credentials are only displayed once; regenerating them invalidates the old ones.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.x.com/x-api/getting-started/getting-access",
+          "title": "X: Getting Access",
+          "quote": "If you lose them, you'll need to regenerate (which invalidates the old ones).",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    }
+  ]
+}

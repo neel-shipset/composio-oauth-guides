@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OAuth app setup guides
 
-## Getting Started
+Look up an app and get a shareable guide to getting your own OAuth app set up and approved: how hard it is, how long it takes (including the approval wait), what can block you, what an agent can do for you, and where you take over.
 
-First, run the development server:
+Built for the Composio APM (toolkits) take-home.
 
+> Status: skeleton. Sections marked TODO are filled in as milestones land.
+
+## Live demo
+TODO
+
+## Run locally
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local   # add ANTHROPIC_API_KEY and COMPOSIO_API_KEY
+npm install
+npm run dev                  # http://localhost:3000
+npm run generate -- jira     # build a library guide from the command line
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How it works
+TODO: pipeline diagram (resolve -> Composio check -> docs + community research + setup attempt -> verify -> write).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## What I learned about the problem
+TODO
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Key decisions
+See [docs/decisions.md](docs/decisions.md). Scoring rules: [docs/rubric.md](docs/rubric.md).
 
-## Learn More
+## How I checked the guides
+See [docs/verification-log.md](docs/verification-log.md).
 
-To learn more about Next.js, take a look at the following resources:
+## Limitations
+TODO
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project layout
+```
+app/                  Next.js pages + /api/generate (streams pipeline progress)
+lib/schema.ts         Guide format (zod); every claim carries an evidence label
+lib/pipeline/         resolver, docs + community researchers, attempt agent, verifier, writer
+lib/composio.ts       Live managed-OAuth check against Composio's toolkit API
+data/toolkits/        Snapshot of Composio's managed vs bring-your-own OAuth list
+data/guides/          Library guides (JSON)
+data/attempts/        Setup-attempt logs and screenshots
+docs/                 Rubric, decisions, verification log, account setup
+scripts/generate.ts   CLI for library builds
+```

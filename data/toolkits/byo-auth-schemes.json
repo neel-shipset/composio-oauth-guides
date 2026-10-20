@@ -1,0 +1,1325 @@
+{
+ "source": "Auth line of https://docs.composio.dev/toolkits/<slug>.md for every toolkit in the 'Bring your own OAuth app' list",
+ "capturedAt": "2026-10-20",
+ "toolkits": [
+  {
+   "slug": "ADOBE_MARKETING_AGENT_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "ADROLL",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "AHREFS",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "AHREFS_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "AIRCALL",
+   "auth": [
+    "OAUTH2",
+    "BASIC"
+   ]
+  },
+  {
+   "slug": "AIROPS_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "ALPACA",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "AMPLITUDE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "APIFY_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "ATLASSIAN_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "AUDIOSCRAPE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "AWEBER",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "AZURE_MONITOR_ACTIVITY_LOG",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "BAMBOOHR",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "BEEMINDER",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "BETTER_STACK_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "BITLY",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "BITWARDEN",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "BLACKBOARD",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "BORNEO",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "BOX_MCP",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "BREVO",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "BREX",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "BUFFER",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "CALENDLY_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CANDID_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CANVAS",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "CANVA_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CARBON_VOICE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CASHFREE_PAYMENTS_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CIRCLEBACK_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CLARIFY_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CLAY_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CLICKHOUSE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CLICKUP_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CLIO_MANAGE",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "CLOCKIFY",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "CLOSE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CLOUDFLARE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CLOVER",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "COINBASE_AGENTS_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "COINBASE_WALLET_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "COMMERCE_LAYER",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "COMMON_ROOM_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CONSENSUS_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CONSTANT_CONTACT",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "CONTACTS_PLUS",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "CONTENTSQUARE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "COUPA",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "CRADL_AI",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "CRAFT_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "CUSTOMERIO_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "D2LBRIGHTSPACE",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "DATABRICKS",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "DATADOG",
+   "auth": [
+    "OAUTH2",
+    "API_KEY",
+    "BEARER_TOKEN"
+   ]
+  },
+  {
+   "slug": "DATADOG_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "DESCRIPT_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "DEV_CYCLE",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "DIGITAL_OCEAN",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "DISQUS",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "DOCUSIGN",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "DRIBBBLE",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "DROPBOX_SIGN",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "EGNYTE",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "EPIC_GAMES",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "ERASER_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "ERA_CONTEXT_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "FELLOW_AI_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "FINANCIAL_DATASETS_AI_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "FOLLOW_UP_BOSS",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "FUSEAI_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "GAGELIST",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "GETRESPONSE",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "GLIDE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "GOCARDLESS_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "GOOGLECONTACTS",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "GOOGLEFORMS",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "GOOGLE_ADMIN",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "GOOGLE_ADSENSE",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "GOOGLE_CHAT",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "GOOGLE_DATA_STUDIO",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "GRAFANA_CLOUD_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "GRANOLA_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "GREPTILE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "GUSTO",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "HELP_SCOUT",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "HIGGSFIELD_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "HIGHLEVEL_AGENCY",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "HIGHLEVEL_LOCATION",
+   "auth": [
+    "OAUTH2",
+    "BEARER_TOKEN"
+   ]
+  },
+  {
+   "slug": "HONEYCOMB_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "IGNAV_FLIGHTS_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "JENTIC_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "JOBBER",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "KERNEL_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "KINTONE_REST",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "KLAVIYO",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "KOMMO",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "LAUNCH_DARKLY",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "LEGAL_DATA_HUNTER_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "LEVER",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "LIGHTSPEED",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "LILT_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "LINEAR_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "LINKEDIN_ADS",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "LODGIFY",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "LONGBRIDGE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "LUCID_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "MAGIC_PATTERNS_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "MARCOPOLO_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "MATTERPORT",
+   "auth": [
+    "BASIC",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "MERCURY_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "METAADS",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "MICROSOFT_POWER_BI",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "MICROSOFT_TODO",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "MIDPAGE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "MINTLIFY_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "MOBBIN_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "MODEM_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "MONDAY_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "MONGODB",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "MONGODB_MCP",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "NEO4J",
+   "auth": [
+    "OAUTH2",
+    "BASIC",
+    "API_KEY",
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "NEON_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "NETLIFY_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "NETSUITE",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "NOTION_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "OCTAGON_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "ONENOTE",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "OTTER_AI_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "PANDADOC_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "PARALLEL_TASK_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "PARMA",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "PARTICL_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "PAYPAL",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "PEEC_AI_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "PERSONIO",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "PINECONE",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "PIPEDRIVE",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "PLAID_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "PLAIN_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "PLANETSCALE",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "POSTHOG_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "PYLON_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "QUICKNODE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "RAILWAY",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "RAILWAY_MCP",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "RAMP",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "RAMP_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "RAZORPAY",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "READ_AI_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "RECRUITEE",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "RELOADLY",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "RESEND",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "RESEND_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SALESFORCE_SERVICE_CLOUD",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "SCHEDULEONCE",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "SCORECARD_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SEARCHAPI_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SEMRUSH_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SENDLOOP",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "SEND_PULSE",
+   "auth": [
+    "API_KEY",
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "SENTRY_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SERVICENOW",
+   "auth": [
+    "BASIC",
+    "OAUTH2",
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "SERVICETITAN",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "SHAREPOINT_GRAPH",
+   "auth": [
+    "OAUTH2",
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "SHOPIFY",
+   "auth": [
+    "OAUTH2",
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "SIDESHOW_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SIGN_NOW",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "SIMPLESCRAPER_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SNAPCHAT",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "SNOWFLAKE",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "SOUNDCLOUD",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "SPLICE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SPOTIFY",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "STATSIG_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "STORYBLOK",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "STRIPE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "STYTCH_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SUPABASE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SUPABASE_READ_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "SURVEY_MONKEY",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "SYNTHESIZE_BIO_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "TALLY",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "TAVILY_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "THOUGHTSPOT_SPOTTER_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "TICKET_TAILOR_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "TIKTOK",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "TINYFISH_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "TODOIST_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "TONEDEN",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "TWITTER",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "VANTAGE_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "VERCEL",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "VERCEL_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "VIBE",
+   "auth": [
+    "OAUTH2",
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "VIBE_PROSPECTING_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "VIDIQ_MCP",
+   "auth": [
+    "DCR_OAUTH",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "VIMEO",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "WEBFLOW",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "WHOP",
+   "auth": [
+    "API_KEY",
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "WILD_APRICOT",
+   "auth": [
+    "S2S_OAUTH2"
+   ]
+  },
+  {
+   "slug": "WISPR_FLOW_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "WIX",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "WIX_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "WORDPRESS_COM",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "WORKABLE",
+   "auth": [
+    "OAUTH2",
+    "API_KEY"
+   ]
+  },
+  {
+   "slug": "WORKDAY",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "XERO",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "ZERNIO_MCP",
+   "auth": [
+    "DCR_OAUTH"
+   ]
+  },
+  {
+   "slug": "ZOOMINFO",
+   "auth": [
+    "OAUTH2"
+   ]
+  },
+  {
+   "slug": "ZOOM_CHAT",
+   "auth": [
+    "OAUTH2"
+   ]
+  }
+ ]
+}

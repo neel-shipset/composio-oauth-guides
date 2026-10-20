@@ -1,0 +1,1059 @@
+{
+  "slug": "zoom",
+  "name": "Zoom",
+  "provider": "Zoom",
+  "developerPortalUrl": "https://marketplace.zoom.us/develop/create",
+  "generatedAt": "2026-10-20",
+  "pipelineVersion": "library-manual-research",
+  "authTypes": [
+    "oauth2"
+  ],
+  "composio": {
+    "toolkitSlug": "ZOOM",
+    "managedOAuth": true,
+    "scopes": [
+      "device:read:admin",
+      "meeting:read",
+      "meeting:read:admin",
+      "meeting:write",
+      "meeting:write:admin",
+      "meeting_summary:read:admin",
+      "recording:read",
+      "recording:read:admin",
+      "recording:write",
+      "recording:write:admin",
+      "report:read:admin",
+      "webinar:read",
+      "webinar:read:admin",
+      "webinar:read:list_webinars:admin",
+      "webinar:write:registrant"
+    ]
+  },
+  "needOwnApp": {
+    "verdict": "recommended_for_production",
+    "reasons": [
+      "Your own app costs a Marketplace review. Until Zoom approves it, only users on your own Zoom account can connect: anyone outside it gets 'This app cannot be installed outside of the developer's account.' Composio's managed app lets you skip that review entirely, so stay on it until you have a reason to switch.",
+      "Your users see the name and logo of whichever app they authorize on Zoom's consent screen. On the managed app that is Composio's app, not your product.",
+      "You control the scopes. Composio's default scope list includes admin scopes (report:read:admin, device:read:admin, meeting:read:admin and others), and Zoom only lets a user with the matching account-level permissions authorize those. With your own app you can request user-level scopes only, so ordinary users can connect. Zoom reviewers also reject apps that request scopes they do not use.",
+      "Rate limits are not a reason to switch. Zoom applies them to the account the call is made for, shared across all apps installed on that account, so a shared managed app does not pool your users' quota with other developers' traffic."
+    ],
+    "claimIds": [
+      "c5",
+      "c15",
+      "c20",
+      "c21",
+      "c24",
+      "c27",
+      "c28",
+      "c29"
+    ]
+  },
+  "verdict": {
+    "difficulty": 3,
+    "summary": "Reviewed. You can create a General app and connect accounts on your own Zoom account within an hour, but nobody outside that account can connect until Zoom's Marketplace team approves the app, even if you keep it unlisted. Zoom quotes 72 hours for the first review stage and up to 2 weeks for the security review; recent developer reports describe 2 to 4+ weeks. Composio's managed Zoom app avoids all of this, so use it until branding or scopes force your own.",
+    "timeToTesting": {
+      "min": 20,
+      "max": 45,
+      "unit": "minutes",
+      "label": "20-45 min (users on your own Zoom account only)",
+      "claimIds": [
+        "c1",
+        "c4",
+        "c32"
+      ]
+    },
+    "timeToProduction": {
+      "min": 1,
+      "max": 6,
+      "unit": "weeks",
+      "label": "1-6 weeks: Zoom states 72 hours plus up to 2 weeks of security review; 2025-2026 reports run longer. Add time to write the docs and test plan",
+      "claimIds": [
+        "c9",
+        "c10",
+        "c11",
+        "c13",
+        "c32"
+      ]
+    },
+    "mainBlocker": "Zoom's Marketplace review (functional review, then a security review that checks your technical design documents and runs security tests). It is mandatory before any user outside your own Zoom account can connect, and unlisted apps get the same review.",
+    "confidence": "medium"
+  },
+  "stages": [
+    {
+      "name": "Register the app",
+      "duration": {
+        "min": 15,
+        "max": 30,
+        "unit": "minutes",
+        "label": "15-30 min",
+        "claimIds": [
+          "c32"
+        ]
+      },
+      "limits": [
+        "Choose user-managed or admin-managed when you create the app. Admin-managed apps are added by account admins and can reach other users' data on that account; user-managed apps only reach the authorizing user's own data.",
+        "Apps created since about March 2024 only offer Zoom's granular scopes. Composio's published default list uses the older classic scope names, so you have to pick the matching granular scopes yourself."
+      ],
+      "steps": [
+        {
+          "title": "Create a General app",
+          "detail": "In the Zoom App Marketplace, choose Develop, then Build App, then General App. Pick user-managed if each user connects their own Zoom, or admin-managed if an account admin connects the whole account. Name it after your product: this is what users see when they authorize. Composio's credentials guide also mentions server-to-server apps, but those are for a single account and have no user redirect flow; use a General app for Composio's OAuth2 connections.",
+          "actor": "human",
+          "humanReason": "Requires signing in to your Zoom account in the Marketplace.",
+          "links": [
+            {
+              "label": "Zoom: create a General app",
+              "url": "https://developers.zoom.us/docs/integrations/create/"
+            },
+            {
+              "label": "Zoom App Marketplace",
+              "url": "https://marketplace.zoom.us/"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c1",
+            "c28",
+            "c35"
+          ]
+        },
+        {
+          "title": "Set the redirect URL and allow list",
+          "detail": "Under OAuth Information, paste Composio's redirect URI into Redirect URL and add the same URL to the OAuth Allow List. Copy it from your Composio dashboard when you create the Zoom auth config. Composio's Zoom credentials page shows a /api/v3/ callback path, while Composio's knowledge base warns against reusing legacy v1 or v3 callback paths, so trust the dashboard over either page.",
+          "actor": "human",
+          "humanReason": "Inside your signed-in Zoom developer console.",
+          "links": [
+            {
+              "label": "Composio dashboard",
+              "url": "https://platform.composio.dev"
+            },
+            {
+              "label": "Composio Zoom notes",
+              "url": "https://docs.composio.dev/kb/guide/toolkits-zoom"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Redirect URL and OAuth Allow List entry",
+              "value": "Copy from Composio: Auth Configs > Create Auth Config > Zoom > OAuth2"
+            }
+          ],
+          "claimIds": [
+            "c2",
+            "c19",
+            "c28",
+            "c30"
+          ]
+        },
+        {
+          "title": "Add scopes",
+          "detail": "Open Scopes and add only the granular scopes for the Composio Zoom tools your agent uses. Prefer user-level scopes over :admin scopes unless an admin will authorize. Reviewers reject unused or overlapping scopes and want a justification for each one, so keep the list short from the start.",
+          "actor": "either",
+          "links": [
+            {
+              "label": "Migrate from classic to granular scopes",
+              "url": "https://developers.zoom.us/docs/integrations/migrate/"
+            },
+            {
+              "label": "Common rejection reasons",
+              "url": "https://developers.zoom.us/docs/distribute/app-submission/common-rejection-issues/"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Composio's default classic scopes (map each to its granular equivalent)",
+              "value": "meeting:read meeting:write recording:read recording:write webinar:read webinar:write:registrant"
+            }
+          ],
+          "claimIds": [
+            "c15",
+            "c24",
+            "c25",
+            "c26",
+            "c28"
+          ]
+        },
+        {
+          "title": "Copy the development Client ID and Secret",
+          "detail": "Under App Credentials, copy the development Client ID and Client Secret for testing. Zoom also issues production credentials, which you use once the app is published. Treat each secret like a password: it goes into Composio and nowhere else.",
+          "actor": "human",
+          "humanReason": "The secret should only pass from your console to Composio.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "c3",
+            "c28"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Connect it in Composio and test",
+      "duration": {
+        "min": 5,
+        "max": 15,
+        "unit": "minutes",
+        "label": "5-15 min",
+        "claimIds": [
+          "c32"
+        ]
+      },
+      "limits": [
+        "Before review, only members of your own Zoom account can authorize the app.",
+        "Access tokens last 1 hour. Refresh tokens expire after 90 days, and each refresh should use the latest refresh token.",
+        "Apps in development do not send deauthorization notifications, so you cannot test that flow until the app is published."
+      ],
+      "steps": [
+        {
+          "title": "Create the Zoom auth config in Composio",
+          "detail": "Create an OAuth2 auth config for Zoom with your development Client ID, Client Secret and the same scopes you added in Zoom. Composio states Zoom has no bearer token option, so use OAuth2.",
+          "actor": "either",
+          "links": [
+            {
+              "label": "Custom auth configs",
+              "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Authorization URL",
+              "value": "https://zoom.us/oauth/authorize"
+            },
+            {
+              "label": "Token URL",
+              "value": "https://zoom.us/oauth/token"
+            }
+          ],
+          "claimIds": [
+            "c18",
+            "c28"
+          ]
+        },
+        {
+          "title": "Connect a user on your own Zoom account",
+          "detail": "Start a connection, approve the consent screen with a user on the same Zoom account that owns the app, and run one read tool (for example, list meetings). Use an admin user if you added any :admin scopes. A user from any other Zoom account will be refused until the app is published.",
+          "actor": "human",
+          "humanReason": "You approve the consent screen with your own Zoom account.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "c4",
+            "c5",
+            "c24",
+            "c29"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Get the app reviewed and published",
+      "duration": {
+        "min": 1,
+        "max": 6,
+        "unit": "weeks",
+        "label": "Zoom: 72 hours plus up to 2 weeks. Reported: 5 business days to 4+ weeks",
+        "claimIds": [
+          "c9",
+          "c10",
+          "c11"
+        ]
+      },
+      "limits": [
+        "Review is required for public and unlisted apps alike. Only private apps (your own account) skip it.",
+        "Terms of Use, Privacy Policy, support and documentation pages must be on a domain your company owns. Google Drive or Dropbox links are rejected.",
+        "Rate limits follow each customer's Zoom plan, from 4 requests per second (Free, light APIs) to 80 (Business and up), and each user can create or update at most 100 meetings per day."
+      ],
+      "steps": [
+        {
+          "title": "Prepare the listing pages",
+          "detail": "Publish a Terms of Use, Privacy Policy, Support page (with support hours, response time and contact methods) and user documentation on your own domain. The documentation needs sections on adding the app, using it, removing it (including what happens to the data) and troubleshooting. Unlisted apps still need images, a description and categories, because Zoom shows them on the user's added-apps page.",
+          "actor": "either",
+          "links": [
+            {
+              "label": "App distribution",
+              "url": "https://developers.zoom.us/docs/distribute/"
+            },
+            {
+              "label": "Common rejection reasons",
+              "url": "https://developers.zoom.us/docs/distribute/app-submission/common-rejection-issues/"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c12",
+            "c14",
+            "c17"
+          ]
+        },
+        {
+          "title": "Handle deauthorization",
+          "detail": "When a user removes the app, you must handle Zoom's deauthorization event notification and revoke their tokens, or rely on Zoom's standard removal process. Check with Composio how its connections react to a Zoom deauthorization event before you submit.",
+          "actor": "agent",
+          "links": [
+            {
+              "label": "End user authorization",
+              "url": "https://developers.zoom.us/docs/integrations/end-user-auth/"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c16"
+          ]
+        },
+        {
+          "title": "Write the test plan and test accounts",
+          "detail": "Give reviewers a step-by-step test plan covering every scope you request, plus login credentials for test accounts with sample data (two accounts if a flow needs them). A recorded walkthrough, for example a Loom link, is optional but recommended by developers who have been through review.",
+          "actor": "either",
+          "links": [
+            {
+              "label": "Zoom: app review process",
+              "url": "https://developers.zoom.us/docs/distribute/app-review-process/"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c13",
+            "c33"
+          ]
+        },
+        {
+          "title": "Submit for review",
+          "detail": "Submit the app with its technical design documentation and the security and privacy answers. Choose unlisted if you only want your own users to install it through your link; the review is the same. Zoom first checks completeness, branding and functionality, then its security team audits the app, including OWASP Top 10 testing. You can submit from a free Zoom account. Watch the developer contact email: Zoom sends review findings there.",
+          "actor": "human",
+          "humanReason": "A submission and legal agreement (Marketplace Developer Agreement) made on behalf of your company.",
+          "links": [
+            {
+              "label": "Zoom: app review process",
+              "url": "https://developers.zoom.us/docs/distribute/app-review-process/"
+            },
+            {
+              "label": "Check review status",
+              "url": "https://developers.zoom.us/docs/distribute/app-submission/check-review-status/"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c6",
+            "c8",
+            "c9",
+            "c31",
+            "c34"
+          ]
+        },
+        {
+          "title": "Switch Composio to production credentials",
+          "detail": "Once the app is approved, put the production Client ID and Secret into your Composio auth config. Zoom says to use production credentials once the app is published.",
+          "actor": "either",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "c3"
+          ]
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "title": "Marketplace review before any outside user",
+      "detail": "Users outside your Zoom account can only install the app after it passes Zoom's review. Unlisted apps are reviewed the same way and must meet the same security and privacy requirements.",
+      "claimIds": [
+        "c5",
+        "c6",
+        "c7"
+      ]
+    },
+    {
+      "title": "Terms of Use, Privacy Policy, documentation and support URL on your own domain",
+      "detail": "Required by the Marketplace Developer Agreement. Pages on third-party hosts are a common rejection reason.",
+      "claimIds": [
+        "c12",
+        "c14"
+      ]
+    },
+    {
+      "title": "Test plan and test credentials",
+      "detail": "Reviewers need a plan covering every scope and working test logins. An insufficient test plan is the first rejection reason Zoom lists.",
+      "claimIds": [
+        "c13"
+      ]
+    },
+    {
+      "title": "Minimum scopes, each justified",
+      "detail": "Request only the scopes your tools use; reviewers reject unused or overlapping scopes. New apps use granular scopes.",
+      "claimIds": [
+        "c15",
+        "c25",
+        "c26"
+      ]
+    },
+    {
+      "title": "Deauthorization handling",
+      "detail": "Removing the app must revoke tokens and handle the deauthorization event, or use Zoom's standard removal.",
+      "claimIds": [
+        "c16"
+      ]
+    },
+    {
+      "title": "Tokens expire: 1 hour access, 90 days refresh",
+      "detail": "Always use the latest refresh token. A user whose refresh token expires has to reconnect.",
+      "claimIds": [
+        "c18"
+      ]
+    },
+    {
+      "title": "No fee",
+      "detail": "Zoom staff say a paid plan is not needed to create or submit Marketplace apps, though some features (webinars, Zoom Phone) need a license to test.",
+      "claimIds": [
+        "c31"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "title": "Users outside your account cannot connect",
+      "symptom": "The consent screen says 'This app cannot be installed outside of the developer's account. Please contact the application developer to get support with installing this application.'",
+      "fix": "Expected until Zoom approves the app. Test with users on your own Zoom account, or keep using Composio's managed Zoom app until your own app is published.",
+      "claimIds": [
+        "c4",
+        "c5",
+        "c29"
+      ]
+    },
+    {
+      "title": "Redirect URL mismatch",
+      "symptom": "Zoom shows a redirect or invalid redirect_uri error before the user can approve.",
+      "fix": "Make the Redirect URL and the OAuth Allow List entry identical to the redirect URI in your Composio auth config. Copy it from the Composio dashboard; if it changed, recreate or update the auth config.",
+      "claimIds": [
+        "c2",
+        "c19",
+        "c29",
+        "c30"
+      ]
+    },
+    {
+      "title": "Scopes from Composio's guide are not in the scope picker",
+      "symptom": "You search for meeting:read or recording:read:admin and cannot find them in a newly created app.",
+      "fix": "New apps only list granular scopes. Pick the granular scopes that cover the same APIs. Tools that fail with a scope error need the missing scope added to your app and to the Composio auth config, then a reconnect.",
+      "claimIds": [
+        "c25",
+        "c26",
+        "c29"
+      ]
+    },
+    {
+      "title": "Ordinary users cannot authorize admin scopes",
+      "symptom": "Non-admin users fail at consent, or admin tools return permission errors.",
+      "fix": "Apps with :admin scopes must be authorized by a user with the matching account-level permissions. Drop the admin scopes or have an admin connect.",
+      "claimIds": [
+        "c24"
+      ]
+    },
+    {
+      "title": "Customer account requires pre-approval",
+      "symptom": "Users see 'Request pre-approve' instead of being able to install.",
+      "fix": "The customer's Zoom Marketplace admin must pre-approve your app (Marketplace > Manage > Permissions), or turn off the pre-approval requirement.",
+      "claimIds": [
+        "c23"
+      ]
+    },
+    {
+      "title": "Review rejected",
+      "symptom": "Zoom returns the submission with findings to fix.",
+      "fix": "The listed causes are a weak test plan, the wrong Client ID, pages hosted on third-party domains, missing documentation sections, unused or overlapping scopes, missing deauthorization handling, thin support information and missing listing metadata. Fix and resubmit.",
+      "claimIds": [
+        "c13",
+        "c14",
+        "c15",
+        "c16",
+        "c17"
+      ]
+    },
+    {
+      "title": "429 errors for one customer",
+      "symptom": "Calls fail with HTTP 429 for one customer account.",
+      "fix": "That account's plan limit is used up, and it is shared with every other app installed on the account. Back off and retry; meeting create or update calls are also capped at 100 per user per day.",
+      "claimIds": [
+        "c20",
+        "c21",
+        "c22"
+      ]
+    }
+  ],
+  "handoff": {
+    "agentCan": [
+      "Map the Composio Zoom tools you use to the smallest set of granular scopes, preferring user-level over admin scopes",
+      "Prepare every value to paste into the Zoom developer console",
+      "Create the Composio auth config through Composio's API once you give it the Client ID and Secret through a secure channel",
+      "Draft the Terms of Use, Privacy Policy, support page and user documentation sections Zoom requires",
+      "Write the test plan, with one section per scope, and the scope justifications",
+      "Implement deauthorization handling if your backend needs it"
+    ],
+    "youMust": [
+      "Sign in to the Zoom App Marketplace and create the app",
+      "Approve the first consent screen with a user on your own Zoom account",
+      "Host the legal and support pages on your company's domain",
+      "Accept the Marketplace Developer Agreement and submit the app for review",
+      "Create and populate test accounts for the reviewers, and answer their findings"
+    ]
+  },
+  "unknowns": [
+    {
+      "question": "Is Composio's managed Zoom app published or unlisted on the Zoom Marketplace, and with which scopes?",
+      "whyItMatters": "If it is not published, users outside Composio's own Zoom account could not connect through it, and the managed option would only work for testing.",
+      "askWhom": "Composio support",
+      "draftEmail": "Hi Composio team, your docs say Zoom has Composio-managed OAuth. Is the managed Zoom app published or unlisted on the Zoom Marketplace, so that users on any Zoom account can connect? Which scopes does it request, and are they classic or granular scopes? Thanks."
+    },
+    {
+      "question": "Which granular scopes match Composio's default classic scope list?",
+      "whyItMatters": "New Zoom apps cannot select classic scopes, and Composio's credentials guide only lists classic names.",
+      "askWhom": "Composio support",
+      "draftEmail": "Hi Composio team, your Zoom credentials guide lists classic scopes such as meeting:read and recording:read:admin, but new Zoom General apps only offer granular scopes. Do you have a list of granular scopes per Zoom tool, and does the toolkit work with an app that uses granular scopes only? Thanks."
+    },
+    {
+      "question": "Can Composio's Zoom toolkit use a server-to-server app?",
+      "whyItMatters": "Composio's guide says to create a General or server-to-server app; server-to-server apps are internal to one account and would avoid review for internal use.",
+      "askWhom": "Composio support",
+      "draftEmail": "Hi Composio team, your Zoom credentials guide mentions creating a General or server-to-server app. Does the Zoom toolkit support server-to-server OAuth (account credentials), and if so, how is it configured in an auth config? Thanks."
+    },
+    {
+      "question": "Do connections made with development credentials keep working after publication, or must every user reconnect on production credentials?",
+      "whyItMatters": "Decides whether your test users have to reconnect when you switch the auth config to production credentials.",
+      "askWhom": "Zoom developer forum (devforum.zoom.us)",
+      "draftEmail": "Hi Zoom team, our General app has development and production credentials. After the app is published, do tokens issued to development credentials keep working for users on our own account, or should all users reauthorize using the production Client ID? Thanks."
+    },
+    {
+      "question": "Can a beta app be piloted with one external customer before full review, and how long does Zoom take to approve sharing its authorization URL?",
+      "whyItMatters": "Zoom's own pages disagree: one limits beta apps to the developer's account, another allows external sharing after Zoom approves it. If the second holds, you can pilot with a customer while the full review runs.",
+      "askWhom": "Zoom developer forum (devforum.zoom.us)",
+      "draftEmail": "Hi Zoom team, your key concepts page says we can request approval to share a beta app's authorization URL with external users, while the Create a General app page says beta access is limited to our own account. Which is current, what documentation do you need, and how long does that approval usually take? Thanks."
+    },
+    {
+      "question": "How long does Zoom's review take right now?",
+      "whyItMatters": "Zoom's stated 72 hours plus up to 2 weeks is often exceeded in 2025-2026 reports.",
+      "askWhom": "Zoom Marketplace review team, via the developer forum",
+      "draftEmail": "Hi Zoom team, we plan to submit a General app (unlisted) that uses REST API scopes only. What is the current typical time for functional review and for security review? Thanks."
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "text": "General apps are either admin-managed (account admins add and manage it and it can reach data of users on the account) or user-managed (individual users add it and it reaches only their own data).",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/integrations/create/",
+          "title": "Zoom: Create a General app",
+          "quote": "User-managed: Individual users add and manage the app. The app has access to only the user's authorized data.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "text": "A General app takes a redirect URL and an OAuth allow list of URLs Zoom accepts as valid redirects.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/integrations/create/",
+          "title": "Zoom: Create a General app",
+          "quote": "Add any unique URLs that Zoom should allow as valid redirects for your OAuth flows.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "text": "Zoom issues development credentials for building and testing and production credentials for use once the app is published.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/integrations/create/",
+          "title": "Zoom: Create a General app",
+          "quote": "Use production credentials once you are ready to publish your app on the Marketplace.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "text": "Zoom's docs conflict on beta apps: the Create a General app page says beta access is only for members of the developer's account, while the key concepts page says a beta app can be shared with external users if Zoom approves sharing its authorization URL after reviewing technical design documentation.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/integrations/create/",
+          "title": "Zoom: Create a General app",
+          "quote": "we allow beta app access only to members of the developer's Zoom account.",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://developers.zoom.us/docs/platform/key-concepts/",
+          "title": "Zoom: Key concepts (app types and distribution)",
+          "quote": "You must request and get approval from Zoom to share the authorization URL",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c5",
+      "text": "External Zoom users can install an app only after it passes Zoom's review. A Zoom staff member said an OAuth app must be published to be installed outside the developer's account; otherwise users see 'This app cannot be installed outside of the developer's account.'",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/distribute/",
+          "title": "Zoom: App distribution",
+          "quote": "External Zoom users can discover and install your app from the Zoom App Marketplace after it passes Zoom's review process.",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://devforum.zoom.us/t/-/9195",
+          "title": "Zoom developer forum: App cannot be installed outside developer account (staff answer)",
+          "quote": "In order to install an OAuth app outside the developers Zoom account, it must be published to the Zoom App Marketplace.",
+          "publishedAt": "2020-03-23",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c6",
+      "text": "Unlisted apps have no subscriber limit but must be reviewed and approved like published apps, and must meet the same security and privacy requirements.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/platform/key-concepts/",
+          "title": "Zoom: Key concepts for Zoom Developer Platform",
+          "quote": "Unlisted apps are the same as published apps as there are no restrictions on subscriber counts and they are required to be reviewed and approved by the Marketplace team.",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://devforum.zoom.us/t/questions-for-publication-requirements-for-unlisted-app/110198",
+          "title": "Zoom developer forum: publication requirements for unlisted app (staff answer)",
+          "quote": "Yes, even for unlisted apps, you must meet the same security and privacy requirements as public apps.",
+          "publishedAt": "2024-06-10",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c7",
+      "text": "Private apps, for users within your own Zoom account, are not published and skip review.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/platform/key-concepts/",
+          "title": "Zoom: Key concepts for Zoom Developer Platform",
+          "quote": "Private apps are not published to the Zoom Marketplace, and are not required to go through the app review process.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c8",
+      "text": "Review runs as submission completeness and branding review, functionality, usability and compliance review, then a security review that includes OWASP Top 10 testing, with remediation if findings come back.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/distribute/app-review-process/",
+          "title": "Zoom: App Review Process",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://developers.zoom.us/docs/distribute/",
+          "title": "Zoom: App distribution",
+          "quote": "the Marketplace Security team performs a Security Audit and a focused security test on Zoom scopes.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c9",
+      "text": "Zoom staff state a 72-hour SLA per submission, with the security review taking up to 2 weeks depending on the accuracy of the Technical Design Documents.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://devforum.zoom.us/t/zoom-app-marketplace-review-process/121554",
+          "title": "Zoom developer forum: Zoom App Marketplace Review Process (staff answer)",
+          "quote": "72-hour SLA for every submission",
+          "publishedAt": "2024-12-03",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://devforum.zoom.us/t/whats-happen-with-zoom-app-security-review/92831",
+          "title": "Zoom developer forum: What's happen with Zoom App Security Review? (staff answer)",
+          "quote": "The App Security Team begins reviews within 72 hours.",
+          "publishedAt": "2023-08-02",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c10",
+      "text": "Developers report longer waits: in February 2026 Zoom staff said the team was 'a bit underwater on app reviews' and a developer expected 4+ weeks; a September 2025 scope update waited over a week in security review; an August 2026 app was stuck in security review for more than 2 weeks and Zoom support said it cannot expedite reviews.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://devforum.zoom.us/t/is-there-any-way-to-expedite-the-zoom-approval-process/141738",
+          "title": "Zoom developer forum: Is there any way to expedite the Zoom approval process? (Feb 2026)",
+          "quote": "Our team has been a bit underwater on app reviews in this new year.",
+          "publishedAt": "2026-02-07",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://devforum.zoom.us/t/delay-in-additional-review-for-app-update/137740",
+          "title": "Zoom developer forum: Delay in additional review for app update (Sep 2025)",
+          "publishedAt": "2025-09-30",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://devforum.zoom.us/t/production-app-approval-stuck-in-security-review-for-over-2-weeks/145848",
+          "title": "Zoom developer forum: Production App Approval Stuck in Security Review for Over 2 Weeks (Aug 2026)",
+          "publishedAt": "2026-08-24",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c11",
+      "text": "Recall.ai's 2026 guide to Zoom app submission says review usually takes 5-7 business days.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://www.recall.ai/blog/explaining-the-zoom-app-submission-process",
+          "title": "Recall.ai: Explaining the Zoom app submission process",
+          "quote": "this usually takes 5-7 business days",
+          "publishedAt": "2026-06-16",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c12",
+      "text": "Developers must provide a Terms of Use, Privacy Policy, self-serve documentation and a support URL under the Zoom Marketplace Developer Agreement.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/distribute/",
+          "title": "Zoom: App distribution",
+          "quote": "a Terms of Use, Privacy Policy, Self-Serve Documentation, and Support URL as part of the Zoom Marketplace Developer Agreement",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c13",
+      "text": "An insufficient test plan is a listed rejection reason; the plan must explain use cases, testing steps and login credentials, covering every requested scope.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/distribute/app-submission/common-rejection-issues/",
+          "title": "Zoom: Common reasons for app submission rejection",
+          "quote": "The test plan provides instructions for the Zoom review team on your app's use cases, testing process, and required login credentials.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c14",
+      "text": "App metadata and resource URLs must be on fully qualified domains your company owns; Google Drive or Dropbox links are rejected. Documentation must cover adding, using, removing (with data handling) and troubleshooting.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/distribute/app-submission/common-rejection-issues/",
+          "title": "Zoom: Common reasons for app submission rejection",
+          "quote": "must be hosted on fully qualified domain names (FQDNs) owned by your company",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c15",
+      "text": "Apps must request the minimum scopes, justify each one with testing instructions, and are rejected for unused or overlapping scopes.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/distribute/app-submission/common-rejection-issues/",
+          "title": "Zoom: Common reasons for app submission rejection",
+          "quote": "Developers must provide justification and detailed testing instructions for each requested scope.",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://developers.zoom.us/docs/distribute/app-review-process/",
+          "title": "Zoom: App Review Process",
+          "quote": "the minimum necessary OAuth scopes required for its functionality",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c16",
+      "text": "Apps must handle removal through Zoom's standard process or by handling the deauthorization event notification and revoking tokens; private and in-development apps do not trigger deauthorization notifications.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/distribute/app-submission/common-rejection-issues/",
+          "title": "Zoom: Common reasons for app submission rejection",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://developers.zoom.us/docs/integrations/end-user-auth/",
+          "title": "Zoom: End user authorization",
+          "quote": "Private apps or apps in development do not trigger deauthorization notifications.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c17",
+      "text": "Unlisted apps still need complete listing metadata (images, descriptions, categories), because it appears in app notifications and the user's added apps page.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/distribute/app-submission/common-rejection-issues/",
+          "title": "Zoom: Common reasons for app submission rejection",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c18",
+      "text": "Access tokens expire after one hour and refresh tokens after 90 days; always use the latest refresh token. Authorization is at https://zoom.us/oauth/authorize and tokens at https://zoom.us/oauth/token.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/integrations/oauth/",
+          "title": "Zoom: OAuth 2.0",
+          "quote": "Refresh tokens expire after 90 days.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c19",
+      "text": "Zoom matches redirect URIs exactly, except that for loopback URIs it ignores the port.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/integrations/oauth/",
+          "title": "Zoom: OAuth 2.0",
+          "quote": "The scheme, numeric loopback host, path, query, fragment, and user info must otherwise match the registered URI exactly.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c20",
+      "text": "Rate limits apply at the account level, shared by all apps installed on the account, and scale by plan (for light APIs: 4/second on Free, 30 on Pro, 80 on Business and up). Exceeding them returns HTTP 429.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/api/rate-limits.md",
+          "title": "Zoom: Rate limits",
+          "quote": "Rate limits are applied at the account level. These rate limits are shared by users for all apps installed on the account.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c21",
+      "text": "A Zoom staff member said an OAuth app's calls count against the limits of the user it acts for, varying with that user's license, not the app owner's.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://devforum.zoom.us/t/understanding-the-oauth-app-rate-limits/82551",
+          "title": "Zoom developer forum: Understanding the OAuth App rate limits (staff answer)",
+          "quote": "the rate limits will be applicable when the app is acting on behalf of the user",
+          "publishedAt": "2023-02-13",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c22",
+      "text": "Meeting and webinar create or update calls are limited to 100 per user per day (UTC).",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/api/rate-limits.md",
+          "title": "Zoom: Rate limits",
+          "quote": "100 create/update requests per day (UTC) per user",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c23",
+      "text": "A Zoom account may require a Marketplace admin to pre-approve an app before users can authorize it; users then see 'Request pre-approve'. Admins control this under Marketplace > Manage > Permissions.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/integrations/end-user-auth/",
+          "title": "Zoom: End user authorization",
+          "quote": "A Zoom account may require an app be pre-approved by a Marketplace admin before the end user may authorize it.",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://help.ambient.us/en/articles/6012823-for-your-admin-enabling-or-pre-approving-zoom-apps",
+          "title": "Ambient help center: enabling or pre-approving Zoom apps",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c24",
+      "text": "Apps with admin scopes must be authorized by a user with the corresponding account-level permissions; user-level apps can be added by any user.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/integrations/end-user-auth/",
+          "title": "Zoom: End user authorization",
+          "quote": "Account-level apps (apps with admin) scopes must be authorized by a user with the corresponding account-level permissions.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c25",
+      "text": "Existing apps can keep classic scopes, and migrating to granular scopes does not make existing users reauthorize.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.zoom.us/docs/integrations/migrate/",
+          "title": "Zoom: Migrate from classic to granular scopes",
+          "quote": "Your existing apps can continue to use classic scopes, but we encourage you to migrate them to use granular scopes.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c26",
+      "text": "Developers report that apps created after about March 30, 2024 only offer granular scopes, and that classic names such as recording:read:admin are not available to them.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://devforum.zoom.us/t/granular-scopes-not-appearing/110556",
+          "title": "Zoom developer forum: Granular Scopes Not Appearing (2024)",
+          "quote": "new apps only offer the Granular scopes",
+          "publishedAt": "2024",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c27",
+      "text": "Composio lists Zoom as having Composio-managed OAuth, so users can connect without you registering a Zoom app.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/toolkits/managed-auth",
+          "title": "Composio: Managed OAuth apps",
+          "quote": "You do not need to register an OAuth app or supply its client ID and client secret.",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://docs.composio.dev/toolkits/zoom",
+          "title": "Composio: Zoom toolkit",
+          "quote": "Composio-managed OAuth available? Yes",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c28",
+      "text": "Composio's Zoom credentials guide says to create a General or server-to-server app, copy the Client ID and Secret from Basic Information, add the callback https://backend.composio.dev/api/v3/toolkits/auth/callback, and lists 15 default classic scopes. It says Zoom has no bearer token support.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://composio.dev/auth/zoom",
+          "title": "Composio: How to create OAuth2 credentials for Zoom",
+          "quote": "There is no support for Bearer Token with Zoom",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c29",
+      "text": "Composio's Zoom notes say an unpublished internal app may only connect users from its own Zoom organization, the consent screen name and logo come from the OAuth app settings, scope errors mean the scope is missing on the app, and to recreate the auth config with the default redirect if auth fails after redirect changes.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/kb/guide/toolkits-zoom",
+          "title": "Composio KB: Zoom toolkit",
+          "quote": "An unpublished internal app may only connect users from its own Zoom organization.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c30",
+      "text": "Composio's docs conflict on callback paths: the Zoom credentials guide shows a /api/v3/ path, while the Composio knowledge base says not to reuse legacy v1 or v3 callback paths and to copy the one shown by the current auth-config flow.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://composio.dev/auth/zoom",
+          "title": "Composio: How to create OAuth2 credentials for Zoom",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://docs.composio.dev/kb/guide/toolkits-jira",
+          "title": "Composio KB: Jira toolkit",
+          "quote": "Do not reuse legacy v1 or v3 callback paths from older examples.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c31",
+      "text": "A Zoom staff member said paid plans are not needed to create or submit Marketplace apps, but a license is needed to test some features.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://devforum.zoom.us/t/account-license-requirement-for-hosting-marketplace-app/137978",
+          "title": "Zoom developer forum: Account license requirement for hosting Marketplace app (staff answer)",
+          "quote": "Paid plans are not needed to submit or create apps on Marketplace.",
+          "publishedAt": "2025-10-09",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c32",
+      "text": "Estimate: setup durations come from the number of console steps, and the 1-6 week production range combines Zoom's stated review times with 2025-2026 reports plus time to prepare documents. Not timed in a real attempt.",
+      "evidence": "unknown",
+      "sources": []
+    },
+    {
+      "id": "c33",
+      "text": "Recall.ai recommends recording a Loom walkthrough of the app and pasting it in the Release Notes field; it also says missing scope descriptions lead to rejection.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://www.recall.ai/blog/explaining-the-zoom-app-submission-process",
+          "title": "Recall.ai: Explaining the Zoom app submission process",
+          "quote": "If you forget any scope descriptions, your app will be rejected.",
+          "publishedAt": "2026-06-16",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c34",
+      "text": "Zoom staff said review emails go to the developer's contact email.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://devforum.zoom.us/t/questions-for-publication-requirements-for-unlisted-app/110198",
+          "title": "Zoom developer forum: publication requirements for unlisted app (staff answer)",
+          "quote": "the developer's contact email, so ensure this is accurate and monitored",
+          "publishedAt": "2024-06-10",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c35",
+      "text": "Estimate: the General app is the app type with a user redirect flow, which Composio's OAuth2 connections need; whether Composio's Zoom toolkit supports server-to-server apps is not documented.",
+      "evidence": "unknown",
+      "sources": []
+    }
+  ]
+}

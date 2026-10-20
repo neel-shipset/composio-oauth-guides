@@ -1,0 +1,56 @@
+import { config } from "@/lib/config";
+import { withBudget } from "@/lib/llm";
+import { generateGuide } from "@/lib/pipeline";
+import { PROFILES } from "@/lib/pipeline/profile";
+import type { PipelineEvent } from "@/lib/pipeline/types";
+import { getGuide, saveLiveGuide } from "@/lib/store";
+import { findToolkit } from "@/lib/toolkits";
+
+export const maxDuration = 800; // seconds; research runs a few minutes
+
+// Per-instance abuse guard. Good enough for a demo; a shared limit would live in Redis.
+const hits = new Map<string, number[]>();
+function allowed(ip: string) {
+  const now = Date.now();
+  const recent = (hits.get(ip) ?? []).filter((t) => now - t < 3600_000);
+  if (recent.length >= config.rateLimitPerIpPerHour) return false;
+  hits.set(ip, [...recent, now]);
+  return true;
+}
+
+// Live generation. Streams pipeline events as Server-Sent Events, then saves the guide for sharing.
+export async function POST(request: Request) {
+  const { query } = (await request.json().catch(() => ({}))) as { query?: string };
+  const q = query?.trim().slice(0, 200);
+  if (!q) return Response.json({ error: "Enter an app name or website." }, { status: 400 });
+
+  const encoder = new TextEncoder();
+  const sse = (e: PipelineEvent) => encoder.encode(`data: ${JSON.stringify(e)}\n\n`);
+
+  // Already have it? Skip the agents.
+  const known = findToolkit(q);
+  const cached = known ? await getGuide(known.slug.toLowerCase()) : null;
+  if (cached) return new Response(sse({ type: "done", guide: cached.guide }), { headers: { "Content-Type": "text/event-stream" } });
+
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
+  if (!allowed(ip)) return Response.json({ error: "Rate limit reached. Try again in an hour." }, { status: 429 });
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      const send = (e: PipelineEvent) => controller.enqueue(sse(e));
+      try {
+        // Hold back "done" until the guide is saved, so the redirect never lands on a missing page.
+        const guide = await withBudget(PROFILES.live.capUsd, () => generateGuide(q, (e) => e.type !== "done" && send(e), PROFILES.live)).result;
+        await saveLiveGuide(guide);
+        send({ type: "done", guide });
+      } catch (err) {
+        send({ type: "error", message: err instanceof Error ? err.message : String(err) });
+      } finally {
+        controller.close();
+      }
+    },
+  });
+  return new Response(stream, {
+    headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform" },
+  });
+}

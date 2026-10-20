@@ -1,0 +1,27 @@
+{
+  "app": "jira",
+  "expectedDifficulty": 2,
+  "mustHave": [
+    "Apps are private by default; outside users can only connect after sharing is switched on (Distribution > Sharing).",
+    "Until Atlassian reviews the app, users see a warning that it has not been reviewed by Atlassian, but they can still proceed.",
+    "Atlassian review is optional for going live and Atlassian publishes no review timeline.",
+    "Switching on sharing requires a vendor name, a privacy policy URL and a personal-data declaration.",
+    "Apps that store personal data must report accounts via the personal data reporting API (every 7 days by default).",
+    "There is no API for creating Atlassian OAuth apps; registration is done in the developer console by a human.",
+    "offline_access is needed to get a refresh token (with audience=api.atlassian.com).",
+    "Refresh tokens rotate and expire after 90 days of inactivity.",
+    "Each OAuth app has a single 65,000-point hourly API quota shared across all tenants/sites (since March 2026); exhausting it returns 429 for everyone until the hour resets.",
+    "Organisation/site admins can block end users from installing OAuth (3LO) apps.",
+    "The callback URL must exactly match the redirect URI; the developer should copy Composio's redirect URI from their Composio auth config rather than from older docs.",
+    "Developers choose between an account-level and a resource-level grant when creating the app.",
+    "Scopes must be added in the developer console before they can be requested, there is a cap of 50 scopes, and users must re-consent when scopes change.",
+    "Composio's sources disagree on (or the guide flags uncertainty about) whether Jira has a Composio-managed OAuth app.",
+    "Connections need the Jira site base URL (https://<site>.atlassian.net).",
+    "The guide recommends the developer's own app for production with concrete reasons (branding on the consent screen and/or the shared quota)."
+  ],
+  "mustNotSay": [
+    "That Atlassian approval or review is required before outside users can connect.",
+    "That a review or approval duration is an official/published figure.",
+    "A hard-coded Composio redirect URI presented as the one to use."
+  ]
+}

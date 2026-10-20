@@ -1,0 +1,635 @@
+{
+  "slug": "notion_mcp",
+  "name": "Notion MCP",
+  "provider": "Notion",
+  "developerPortalUrl": "https://developers.notion.com/guides/mcp/overview",
+  "generatedAt": "2026-10-20",
+  "pipelineVersion": "library-manual-research",
+  "authTypes": [
+    "oauth2"
+  ],
+  "composio": {
+    "toolkitSlug": "NOTION_MCP",
+    "managedOAuth": false,
+    "scopes": []
+  },
+  "needOwnApp": {
+    "verdict": "not_needed",
+    "reasons": [
+      "Notion's hosted MCP server supports OAuth Dynamic Client Registration: its published OAuth metadata lists a registration endpoint, and Notion's own client guide says the server supports RFC 7591. A client registers itself, so there is no app to create in any Notion portal.",
+      "Composio lists the NOTION_MCP toolkit's auth scheme as DCR_OAUTH, and its docs describe DCR OAuth servers as needing only an authorized connection, with no client ID or secret.",
+      "Composio's directory still files Notion MCP under 'Bring your own OAuth app' and says 'Composio-managed OAuth available? No'. For a DCR toolkit this most likely means Composio has no pre-registered app, not that you must make one. Check the auth config form in your dashboard before you plan around either reading.",
+      "Plain NOTION (the REST API toolkit) is a separate toolkit with a Composio-managed app. You only need your own Notion public connection if you choose that toolkit and want your own branding.",
+      "Notion also supports Client ID Metadata Documents, which the 2026-07-28 MCP spec now prefers after deprecating DCR. Both are self-registration methods, so neither needs a manual app; another integration platform, Nango, also documents Notion MCP as needing no app registration."
+    ],
+    "claimIds": [
+      "c1",
+      "c4",
+      "c9",
+      "c10",
+      "c11",
+      "c12",
+      "c18",
+      "c2",
+      "c13",
+      "c14",
+      "c17"
+    ]
+  },
+  "verdict": {
+    "difficulty": 2,
+    "summary": "No app to register and no review: Notion's MCP server lets clients register themselves, and Composio's NOTION_MCP toolkit uses that, so you can connect your own workspace in minutes and let other users connect the same day. The catches are that the consent screen shows whatever client name Composio registers, not yours, and Notion Enterprise workspaces with MCP governance turned on block any client their admin has not approved.",
+    "timeToTesting": {
+      "min": 5,
+      "max": 15,
+      "unit": "minutes",
+      "label": "5-15 min",
+      "claimIds": [
+        "c1",
+        "c9",
+        "c21"
+      ]
+    },
+    "timeToProduction": {
+      "min": 0,
+      "max": 1,
+      "unit": "days",
+      "label": "Same day. Enterprise workspaces with MCP governance: whenever their admin approves the client",
+      "claimIds": [
+        "c6",
+        "c7",
+        "c21"
+      ]
+    },
+    "mainBlocker": "Notion Enterprise workspaces with MCP governance on, where only admin-approved MCP clients can connect, and an admin has to connect from the tool once before it can be approved.",
+    "confidence": "medium"
+  },
+  "stages": [
+    {
+      "name": "Create the auth config in Composio",
+      "duration": {
+        "min": 2,
+        "max": 5,
+        "unit": "minutes",
+        "label": "2-5 min",
+        "claimIds": [
+          "c21"
+        ]
+      },
+      "limits": [
+        "There is nothing to create on Notion's side. Notion's server hands out client IDs through its registration endpoint.",
+        "Notion's MCP server labels itself as beta in its metadata."
+      ],
+      "steps": [
+        {
+          "title": "Create a Notion MCP auth config",
+          "detail": "In Composio, create an auth config for the NOTION_MCP toolkit. Its auth scheme is DCR OAuth, so there should be no Client ID or Client Secret to paste and no redirect URI to register with Notion. If the form asks you for a Client ID and Secret, stop and ask Composio support: Notion has no portal where you could create one for this server.",
+          "actor": "either",
+          "links": [
+            {
+              "label": "Composio Notion MCP toolkit",
+              "url": "https://docs.composio.dev/toolkits/notion_mcp"
+            },
+            {
+              "label": "Composio dashboard",
+              "url": "https://platform.composio.dev"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Toolkit slug",
+              "value": "NOTION_MCP"
+            },
+            {
+              "label": "Notion MCP server (for reference)",
+              "value": "https://mcp.notion.com/mcp"
+            }
+          ],
+          "claimIds": [
+            "c1",
+            "c3",
+            "c9",
+            "c11",
+            "c22"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Connect your own workspace and test",
+      "duration": {
+        "min": 3,
+        "max": 10,
+        "unit": "minutes",
+        "label": "3-10 min",
+        "claimIds": [
+          "c21"
+        ]
+      },
+      "limits": [
+        "The connection acts as the user who approved it and can read and update only content that user can access.",
+        "Some tools depend on the workspace's plan: AI search needs a Business or Enterprise plan with Notion AI, and some search filters need Business or Enterprise."
+      ],
+      "steps": [
+        {
+          "title": "Approve the Notion consent screen",
+          "detail": "Start a connection for the NOTION_MCP toolkit, sign in to Notion in the browser and approve access for the workspace you want to test with.",
+          "actor": "human",
+          "humanReason": "You sign in to Notion and approve the consent screen with your own account.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "c4",
+            "c5"
+          ]
+        },
+        {
+          "title": "Run one read tool",
+          "detail": "Call the fetch tool with the id \"self\", which returns the connected workspace and user, to confirm the connection works. Then try one search.",
+          "actor": "agent",
+          "links": [
+            {
+              "label": "Notion MCP supported tools",
+              "url": "https://developers.notion.com/guides/mcp/mcp-supported-tools"
+            }
+          ],
+          "preparedValues": [
+            {
+              "label": "Identity check",
+              "value": "Notion fetch tool with id: \"self\""
+            }
+          ],
+          "claimIds": [
+            "c9",
+            "c19",
+            "c23"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Open it to your users",
+      "duration": {
+        "min": 0,
+        "max": 1,
+        "unit": "days",
+        "label": "Same day, except Enterprise workspaces with MCP governance",
+        "claimIds": [
+          "c6",
+          "c7",
+          "c21"
+        ]
+      },
+      "limits": [
+        "No Notion review or distribution switch exists for MCP clients.",
+        "Your users see the client name Composio registered with Notion, not your product name. Not verified.",
+        "Enterprise workspaces can restrict Notion MCP to approved clients. An admin can only disconnect all MCP connections at once, not one app.",
+        "Notion publishes no rate limits specific to its MCP server."
+      ],
+      "steps": [
+        {
+          "title": "Let users connect",
+          "detail": "Use the same auth config for every user. Each user approves their own consent screen. There is nothing to submit to Notion first.",
+          "actor": "either",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": [
+            "c1",
+            "c4",
+            "c11"
+          ]
+        },
+        {
+          "title": "Get Enterprise customers' admins to approve the client",
+          "detail": "If a customer's Notion Enterprise workspace has MCP governance turned on, their workspace owner or admin must first connect to Notion MCP through your app themselves, then approve that client in Settings > Notion MCP > Manage workspace clients. Until then their members cannot connect.",
+          "actor": "human",
+          "humanReason": "Only the customer's own Notion admin can approve a client for their workspace.",
+          "links": [
+            {
+              "label": "Notion help: admin controls for MCP",
+              "url": "https://www.notion.com/help/notion-mcp"
+            },
+            {
+              "label": "Notion MCP security best practices",
+              "url": "https://developers.notion.com/guides/mcp/mcp-security-best-practices"
+            }
+          ],
+          "preparedValues": [],
+          "claimIds": [
+            "c6",
+            "c7",
+            "c8"
+          ]
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "title": "Authorization code flow with PKCE and token refresh",
+      "detail": "Notion's server only offers the authorization code flow with S256 PKCE and refresh tokens to ordinary clients. Composio's DCR OAuth support covers exactly the authorization code flow, so this is handled for you.",
+      "claimIds": [
+        "c2",
+        "c4",
+        "c11"
+      ]
+    },
+    {
+      "title": "A person must approve each connection",
+      "detail": "Each user signs in to Notion in a browser and approves access. The connection then works on everything that user can see.",
+      "claimIds": [
+        "c4",
+        "c5"
+      ]
+    },
+    {
+      "title": "Workspace plan affects some tools",
+      "detail": "AI search and some search filters need a Business or Enterprise plan. Tools on other plans fall back to keyword search or drop the unavailable options.",
+      "claimIds": [
+        "c19"
+      ]
+    },
+    {
+      "title": "No published MCP rate limits",
+      "detail": "Notion publishes per-connection limits for its REST API (180 requests per minute, 600 on Business and Enterprise) but none for the MCP server. Plan for 429 responses anyway.",
+      "claimIds": [
+        "c20"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "title": "Enterprise admin has not approved the client",
+      "symptom": "Users in a customer's Enterprise workspace cannot finish connecting, while users in other workspaces can.",
+      "fix": "The customer's workspace owner or admin connects once through your app, then adds that client to the approved list in Notion's MCP settings.",
+      "claimIds": [
+        "c6",
+        "c7"
+      ]
+    },
+    {
+      "title": "Users are asked to reconnect again and again",
+      "symptom": "Tool calls fail with invalid_grant ('Grant not found') and the user has to sign in again.",
+      "fix": "Refresh tokens belong to the client ID that was registered. A client that registers a new client ID instead of reusing the stored one orphans the old tokens, as Claude Code did in June 2026. Reconnect the account, and if it keeps happening, report it to Composio support.",
+      "claimIds": [
+        "c16"
+      ]
+    },
+    {
+      "title": "Notion rejects the redirect URI",
+      "symptom": "Notion shows 'Invalid redirect_uri for OAuth client' after the user signs in.",
+      "fix": "Notion checks the redirect URI against the one the client registered. This was reported for Claude Code's metadata-document client in April 2026 and fixed by moving to DCR. With Composio, nothing is yours to change: report it to Composio support.",
+      "claimIds": [
+        "c15"
+      ]
+    },
+    {
+      "title": "A tool reports an upgrade or restricted access",
+      "symptom": "Search returns keyword results with a notice, or a tool's access status says upgrade_required or plan_required.",
+      "fix": "The connected workspace's plan lacks that feature. Fall back to the tool Notion suggests, or ask the user to upgrade.",
+      "claimIds": [
+        "c19"
+      ]
+    }
+  ],
+  "handoff": {
+    "agentCan": [
+      "Create the NOTION_MCP auth config through Composio's API (no secrets to handle)",
+      "Start connection links for each user",
+      "Check each connection with the fetch tool and id \"self\"",
+      "Check which tools a workspace's plan allows before calling them",
+      "Draft the note for Enterprise customers' admins about approving your client"
+    ],
+    "youMust": [
+      "Approve the first consent screen with your own Notion account to test",
+      "Ask each Enterprise customer with MCP governance to approve the client in their workspace settings"
+    ]
+  },
+  "unknowns": [
+    {
+      "question": "What does the NOTION_MCP auth config form in Composio actually ask for?",
+      "whyItMatters": "Composio's directory files the toolkit under 'Bring your own OAuth app', and its managed-auth page says such toolkits need your client ID and secret, but the toolkit's auth scheme is DCR OAuth, which needs neither.",
+      "askWhom": "Your Composio dashboard, or Composio support",
+      "draftEmail": "Hi Composio team, the NOTION_MCP toolkit page says Auth: DCR_OAUTH and 'Composio-managed OAuth available? No', and the managed-auth directory lists it under 'Bring your own OAuth app'. Notion's MCP server supports dynamic client registration, so there is no Notion app to create. Does the auth config need any credentials from us, and does Composio register one client per auth config or per connection? Thanks."
+    },
+    {
+      "question": "What client name and logo do users see on Notion's consent screen, and can we set our own?",
+      "whyItMatters": "With dynamic registration Composio chooses the client name, so your users may see Composio's name instead of yours.",
+      "askWhom": "Composio support",
+      "draftEmail": "Hi Composio team, when a user connects the NOTION_MCP toolkit, what client_name does Composio send in Notion's dynamic client registration, and can we set our own name, logo or redirect URI? Thanks."
+    },
+    {
+      "question": "How does Notion's Enterprise allowlist identify a client registered through DCR?",
+      "whyItMatters": "If every Composio connection registers a new client ID, an admin's approval of one client may not cover your other users.",
+      "askWhom": "Notion developer support",
+      "draftEmail": "Hi Notion team, our app connects to Notion MCP through a platform that uses dynamic client registration. When an Enterprise admin approves our client under Manage workspace clients, is the approval tied to one client_id, or to the client name or redirect URI? Thanks."
+    },
+    {
+      "question": "Does Notion MCP have its own rate limits?",
+      "whyItMatters": "Notion publishes per-connection limits for its REST API but none for the MCP server, so heavy agent use may hit an undocumented limit.",
+      "askWhom": "Notion developer support",
+      "draftEmail": "Hi Notion team, are there rate limits specific to the hosted MCP server at mcp.notion.com, or do the REST API limits of 180 or 600 requests per minute per connection apply to MCP tool calls? Thanks."
+    },
+    {
+      "question": "Will Notion keep dynamic client registration now that the MCP spec deprecates it?",
+      "whyItMatters": "The 2026-07-28 MCP spec deprecates DCR in favour of Client ID Metadata Documents. Notion supports both today, and Composio's toolkit relies on DCR.",
+      "askWhom": "Notion developer support, or Composio support",
+      "draftEmail": "Hi Notion team, the 2026-07-28 MCP authorization spec deprecates dynamic client registration. Do you plan to keep the /register endpoint on mcp.notion.com, and is there a timeline if not? Thanks."
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "text": "Notion's MCP authorization server metadata advertises a dynamic client registration endpoint at https://mcp.notion.com/register.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://mcp.notion.com/.well-known/oauth-authorization-server",
+          "title": "Notion MCP OAuth authorization server metadata (fetched directly)",
+          "quote": "\"registration_endpoint\":\"https://mcp.notion.com/register\"",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "text": "The same metadata also advertises Client ID Metadata Document support, the authorization_code, refresh_token and JWT bearer grants, S256 PKCE, and the 'none' token endpoint auth method for public clients.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://mcp.notion.com/.well-known/oauth-authorization-server",
+          "title": "Notion MCP OAuth authorization server metadata (fetched directly)",
+          "quote": "\"client_id_metadata_document_supported\":true",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "text": "Notion's protected resource metadata for https://mcp.notion.com/mcp names the server 'Notion MCP (Beta)', lists one scope, 'default', and points to https://mcp.notion.com as its authorization server. An unauthenticated request to the MCP endpoint returns 401 with a WWW-Authenticate header pointing to this metadata.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://mcp.notion.com/.well-known/oauth-protected-resource/mcp",
+          "title": "Notion MCP protected resource metadata (fetched directly)",
+          "quote": "\"scopes_supported\":[\"default\"],\"bearer_methods_supported\":[\"header\"],\"resource_name\":\"Notion MCP (Beta)\"",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "text": "Notion's guide to building an MCP client says the server supports dynamic client registration (RFC 7591), and that clients must support the OAuth 2.0 authorization code flow with PKCE and token refresh.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.notion.com/guides/mcp/build-mcp-client",
+          "title": "Notion: Build an MCP client for Notion",
+          "quote": "Notion MCP server supports dynamic client registration (RFC 7591).",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c5",
+      "text": "Notion MCP is a remote server hosted by Notion; after a user authorizes with OAuth, the client can read and update content that user can access.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.notion.com/guides/mcp/overview",
+          "title": "Notion: Notion MCP",
+          "quote": "After you authorize a connection with OAuth, the MCP client can use Notion MCP tools to read and update content that you can access.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c6",
+      "text": "Workspace owners manage MCP client access in Settings > Notion MCP > Manage workspace clients; limiting which clients members can connect needs the Enterprise plan, and organization owners can list and revoke members' connections through the Admin API.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.notion.com/guides/mcp/overview",
+          "title": "Notion: Notion MCP",
+          "quote": "Limiting which clients members can connect needs the Enterprise plan.",
+          "accessedAt": "2026-10-20"
+        },
+        {
+          "url": "https://developers.notion.com/guides/mcp/mcp-security-best-practices",
+          "title": "Notion: MCP security best practices",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c7",
+      "text": "With MCP Governance enabled, Enterprise admins approve specific MCP clients and block all others; to add a new tool to the approved list, a workspace owner or admin must first connect to Notion MCP successfully from that tool.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://www.notion.com/help/notion-mcp",
+          "title": "Notion Help Center: Notion MCP",
+          "quote": "To add a new tool to the approved list, a workspace owner or admin needs to successfully connect to Notion MCP from that tool",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c8",
+      "text": "Admins cannot disconnect all users from one specific AI app; the workaround is to disconnect every Notion MCP connection and have users reconnect from approved tools.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://www.notion.com/help/notion-mcp",
+          "title": "Notion Help Center: Notion MCP",
+          "quote": "No. If you need to remove access for a specific tool, the current workaround is to disconnect all Notion MCP connections",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c9",
+      "text": "Composio's NOTION_MCP toolkit page lists the auth scheme as DCR_OAUTH, says Composio-managed OAuth is not available, and lists 42 tools.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/toolkits/notion_mcp",
+          "title": "Composio: Notion MCP toolkit",
+          "quote": "**Auth:** DCR_OAUTH",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c10",
+      "text": "Composio's managed-auth directory lists NOTION under Composio-managed OAuth and NOTION_MCP under 'Bring your own OAuth app (211)', and says that for toolkits without managed auth you register your own OAuth app and supply its client ID and secret.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/toolkits/managed-auth",
+          "title": "Composio: Managed OAuth apps",
+          "quote": "If the field does not contain that method, register your own OAuth app and supply its client ID and client secret.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c11",
+      "text": "Composio's Custom MCP docs define DCR OAuth as a server that supports OAuth Dynamic Client Registration, registered with only a discovery URL, after which you authorize a connection; only the authorization code flow is supported.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/docs/extending-sessions/custom-mcp",
+          "title": "Composio: Custom MCP",
+          "quote": "For DCR OAuth, the server must support the standard authorization-code flow. Other OAuth grant types aren't supported.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c12",
+      "text": "Composio's SDK reference groups DCR_OAUTH with OAuth1 and OAuth2 as schemes that can be Composio-managed, which sits awkwardly with the toolkit page saying managed OAuth is not available for NOTION_MCP.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/reference/sdk-reference/typescript/connected-accounts",
+          "title": "Composio SDK reference: ConnectedAccounts",
+          "quote": "Deprecated for Composio-managed OAuth (OAuth1, OAuth2, DCR_OAUTH).",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c13",
+      "text": "The 2025-11-25 MCP authorization spec says servers and clients SHOULD support Client ID Metadata Documents and MAY support Dynamic Client Registration, and that clients should prefer pre-registration, then metadata documents, then DCR.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+          "title": "MCP specification 2025-11-25: Authorization",
+          "quote": "Use Dynamic Client Registration as a fallback if the Authorization Server supports it (via `registration_endpoint` in OAuth Authorization Server Metadata)",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c14",
+      "text": "The 2026-07-28 MCP authorization spec deprecates Dynamic Client Registration, keeping it only for servers that do not support Client ID Metadata Documents.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization",
+          "title": "MCP specification 2026-07-28: Authorization",
+          "quote": "is deprecated and retained for backwards compatibility with authorization servers that do not support Client ID Metadata Documents.",
+          "publishedAt": "2026-07-28",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c15",
+      "text": "In April 2026 a Claude Code user reported Notion rejecting sign-in with 'Invalid redirect_uri for OAuth client' because Notion checked the redirect URI against the client's metadata document; the issue was closed in May 2026 after Claude Code moved Notion to DCR.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-code/issues/52961",
+          "title": "Claude Code issue: Notion MCP OAuth fails with \"Invalid redirect_uri for OAuth client\"",
+          "quote": "Notion's OAuth server validates the submitted `redirect_uri` against the metadata document's allowlist and rejects because the random localhost port isn't listed.",
+          "publishedAt": "2026-04-24",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c16",
+      "text": "In June 2026 a Claude Code user reported repeated forced re-authentication against Notion MCP because the client registered a new DCR client on many sessions, orphaning earlier refresh tokens ('invalid_grant: Grant not found').",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://github.com/anthropics/claude-code/issues/65752",
+          "title": "Claude Code issue: Hosted Notion MCP (DCR): client re-registers per session",
+          "quote": "Claude Code appears to register a **new** OAuth client on many sessions/resumes instead of reusing the persisted one, orphaning the prior refresh token.",
+          "publishedAt": "2026-06-05",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c17",
+      "text": "Nango, another integration platform, documents Notion MCP as using OAuth 2.0 with dynamic client registration and requiring no app registration.",
+      "evidence": "community",
+      "sources": [
+        {
+          "url": "https://www.nango.dev/docs/api-integrations/notion-mcp",
+          "title": "Nango docs: Notion (MCP)",
+          "quote": "Notion MCP uses OAuth 2.0 with **dynamic client registration**, so no app registration is required.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c18",
+      "text": "Notion's classic public connections (for the REST API) are created in Notion's developer portal with a name, redirect URIs, installation scope and capabilities, and give you an OAuth client ID and secret.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.notion.com/guides/get-started/public-connections",
+          "title": "Notion: Public connections",
+          "quote": "After creation, visit the **Configuration** tab to retrieve your **OAuth client ID** and **OAuth client secret**.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c19",
+      "text": "Some Notion MCP tools depend on the workspace plan: without AI search (Business or Enterprise with Notion AI), search falls back to keyword search, and some filters and sorts need Business or Enterprise; the tool access check reports statuses such as upgrade_required and plan_required.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.notion.com/guides/mcp/mcp-supported-tools",
+          "title": "Notion: Supported tools",
+          "quote": "When the workspace's plan doesn't include AI search, `notion-search` runs a keyword search in Notion.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c20",
+      "text": "Notion's REST API allows 180 requests per minute per connection (600 on Business and Enterprise) plus a separate workspace-wide limit; Notion publishes no limits specific to the MCP server.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://developers.notion.com/reference/request-limits",
+          "title": "Notion: Request limits",
+          "quote": "Each connection has a fixed budget of requests per 60-second window, based on the workspace's plan",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    },
+    {
+      "id": "c21",
+      "text": "Estimate: setup times assume no Notion-side registration and one consent screen; not timed in a real attempt.",
+      "evidence": "unknown",
+      "sources": []
+    },
+    {
+      "id": "c22",
+      "text": "Estimate: Composio's NOTION_MCP auth config asks for no client credentials and Composio chooses the client name shown on Notion's consent screen. Not observed in the dashboard.",
+      "evidence": "unknown",
+      "sources": []
+    },
+    {
+      "id": "c23",
+      "text": "Composio's NOTION_MCP fetch tool accepts the special id \"self\" to return the connected workspace and user.",
+      "evidence": "official",
+      "sources": [
+        {
+          "url": "https://docs.composio.dev/toolkits/notion_mcp",
+          "title": "Composio: Notion MCP toolkit",
+          "quote": "Pass the special id `\"self\"` to get the connected workspace and user identity instead of an entity.",
+          "accessedAt": "2026-10-20"
+        }
+      ]
+    }
+  ]
+}

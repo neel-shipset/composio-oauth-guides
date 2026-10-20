@@ -1,0 +1,661 @@
+{
+  "slug": "linkedin_ads",
+  "name": "LinkedIn Ads",
+  "provider": "LinkedIn",
+  "developerPortalUrl": "https://www.linkedin.com/developers/apps",
+  "generatedAt": "2026-10-20",
+  "pipelineVersion": "library-manual-research",
+  "authTypes": ["oauth2"],
+  "composio": {
+    "toolkitSlug": "LINKEDIN_ADS",
+    "managedOAuth": false,
+    "scopes": []
+  },
+  "needOwnApp": {
+    "verdict": "required",
+    "reasons": [
+      "Composio has no managed OAuth app for LinkedIn Ads. Its toolkit page says so directly, and its managed-auth directory lists LinkedIn Ads under 'Bring your own OAuth app' while plain LinkedIn is Composio-managed.",
+      "LinkedIn only switches on the ads scopes (r_ads, rw_ads, r_ads_reporting) for an app after it approves that app's Advertising API access request. Approval is tied to one app, one company and one LinkedIn Page, so you need an app of your own that LinkedIn has vetted.",
+      "On the Development tier, one app can edit at most 5 ad accounts, and those accounts are listed on the app itself. Composio does not say why it offers no managed app, but a shared app would hit that cap almost at once."
+    ],
+    "claimIds": ["c23", "c24", "c25", "c4", "c5", "c6", "c7", "c35"]
+  },
+  "verdict": {
+    "difficulty": 5,
+    "summary": "Gated. You cannot make a single ads API call until LinkedIn approves your app for the Advertising API. That approval includes identity vetting of your company (business email, legally registered organization, website, privacy policy, verified LinkedIn Page), and LinkedIn can refuse it at its discretion. Agents that only read reporting data can go live on the Development tier once that first approval lands. Agents that create or edit campaigns in more than 5 ad accounts need a second Standard tier review, which LinkedIn says can take up to 30 business days.",
+    "timeToTesting": {
+      "min": 1,
+      "max": 8,
+      "unit": "weeks",
+      "label": "About 1-8 weeks: a few hours of setup, then LinkedIn's Advertising API review, which has no published timeline",
+      "claimIds": ["c30", "c31", "c32", "c34"]
+    },
+    "timeToProduction": {
+      "min": 1,
+      "max": 16,
+      "unit": "weeks",
+      "label": "Read-only agents: live once the Development tier is approved (about 1-8 weeks). Editing more than 5 ad accounts: Standard tier on top of that, up to 30 business days after you submit a demo video",
+      "claimIds": ["c6", "c8", "c9", "c30", "c32"]
+    },
+    "mainBlocker": "LinkedIn's Advertising API access review, with identity vetting of your organization, before any ads scope works at all. If your agent writes campaigns for many customers, the Standard tier review and its demo video come after that.",
+    "confidence": "medium"
+  },
+  "stages": [
+    {
+      "name": "Create the app and verify it with your LinkedIn Page",
+      "duration": {
+        "min": 30,
+        "max": 60,
+        "unit": "minutes",
+        "label": "30-60 min if you are the Page super admin; up to 30 days if you wait on someone else to click the link",
+        "claimIds": ["c2", "c34"]
+      },
+      "limits": [
+        "The app stays tied to the LinkedIn Page you pick. It cannot be moved to another Page later.",
+        "The Page verification link expires after 30 days.",
+        "The app name must not include any part of the LinkedIn or Microsoft names or logos, or the access request is rejected."
+      ],
+      "steps": [
+        {
+          "title": "Make sure your company has a real LinkedIn Page",
+          "detail": "LinkedIn's quick start begins with creating a LinkedIn Page for your company. Use your real company's Page: LinkedIn rejects requests where the Page belongs to a different organization, and says not to use a fake or test Page. The app is permanently tied to this Page, so pick it carefully.",
+          "actor": "human",
+          "humanReason": "Creating or administering a company Page needs a signed-in LinkedIn member with rights to that Page.",
+          "links": [
+            { "label": "Create a LinkedIn Page", "url": "https://www.linkedin.com/help/linkedin/answer/a543852" }
+          ],
+          "preparedValues": [],
+          "claimIds": ["c1", "c3", "c10", "c11"]
+        },
+        {
+          "title": "Create the developer app",
+          "detail": "In the Developer Portal, create a new app. Enter the app name (this is what your users see on the consent screen), the LinkedIn Page URL and a logo, then accept the legal terms. Keep LinkedIn and Microsoft names out of the app name.",
+          "actor": "human",
+          "humanReason": "Requires signing in to LinkedIn and accepting LinkedIn's API terms on behalf of your company.",
+          "links": [
+            { "label": "Create an app", "url": "https://www.linkedin.com/developers/apps/new" }
+          ],
+          "preparedValues": [
+            { "label": "App name", "value": "Your product's name, with no 'Linked', 'In', 'LinkedIn' or 'Microsoft' in it" },
+            { "label": "LinkedIn Page", "value": "Your own company's Page URL, the same company named in the access request" }
+          ],
+          "claimIds": ["c1", "c10", "c38"]
+        },
+        {
+          "title": "Get the app verified by your Page's super admin",
+          "detail": "Open the app's Settings tab, click Verify, then Generate URL. Send that URL to a super admin of your LinkedIn Page. The app is verified once they open it and approve. The link is valid for 30 days.",
+          "actor": "human",
+          "humanReason": "Only a super admin of the LinkedIn Page can approve the association.",
+          "links": [
+            { "label": "Send an app verification request", "url": "https://www.linkedin.com/help/learning/answer/a1665329" }
+          ],
+          "preparedValues": [
+            { "label": "Message to your Page super admin", "value": "Hi, I've created a LinkedIn developer app for <product> so our AI agent can manage and report on our LinkedIn ad accounts. LinkedIn needs a super admin of our company Page to confirm the app belongs to us. Could you open this link and approve it? It expires in 30 days: <verification URL>" }
+          ],
+          "claimIds": ["c2", "c11"]
+        },
+        {
+          "title": "Add Composio's redirect URL",
+          "detail": "On the app's Auth tab, add Composio's redirect URI under Authorized redirect URLs. Copy it from your Composio dashboard when you create the LinkedIn Ads auth config. Composio's own guidance says to register the exact callback its current auth-config flow shows, without guessing between older versions or adding a trailing slash. LinkedIn needs an absolute HTTPS URL with no # in it and ignores query parameters.",
+          "actor": "human",
+          "humanReason": "Inside your signed-in Developer Portal.",
+          "links": [
+            { "label": "Composio dashboard", "url": "https://platform.composio.dev" },
+            { "label": "LinkedIn redirect URL rules", "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow" }
+          ],
+          "preparedValues": [
+            { "label": "Redirect URL", "value": "Copy from Composio: Auth Configs > Create Auth Config > LinkedIn Ads > OAuth2" }
+          ],
+          "claimIds": ["c18", "c26", "c38"]
+        }
+      ]
+    },
+    {
+      "name": "Apply for the Advertising API (Development tier)",
+      "duration": {
+        "min": 1,
+        "max": 8,
+        "unit": "weeks",
+        "label": "About 1-8 weeks. No published timeline; reports range from several business days to several weeks",
+        "claimIds": ["c30", "c31", "c32"]
+      },
+      "limits": [
+        "None of the ads scopes work until this request is approved.",
+        "You must finish the vetting survey within 21 days of it appearing, or the request is closed as Insufficient Details.",
+        "Development tier: read data for any ad account the connected user administers, create 1 test ad account through the API, and edit at most 5 ad accounts, which must be added to the app by ID.",
+        "Approval is at LinkedIn's discretion, even when you meet every listed requirement."
+      ],
+      "steps": [
+        {
+          "title": "Check your use case against LinkedIn's restrictions",
+          "detail": "Before applying, read LinkedIn's restricted uses page. Member data must not be used for ad targeting, building audience lists, enriching a CRM or sales prospecting. Social activity data may be stored for at most 48 hours and most profile data for 24 hours. One individual profile must not be used to manage many customers' ad accounts. The Advertising API also cannot be used to enhance Sign In with LinkedIn or collect member profile data.",
+          "actor": "agent",
+          "links": [
+            { "label": "Restricted uses", "url": "https://learn.microsoft.com/en-us/linkedin/marketing/restricted-use-cases" }
+          ],
+          "preparedValues": [],
+          "claimIds": ["c1", "c14", "c22"]
+        },
+        {
+          "title": "Request the Advertising API on the Products tab",
+          "detail": "On the app's Products tab, find the Advertising API and request access. LinkedIn then opens an access request form. Its published prerequisites for Marketing API access ask for a business email address (personal addresses fail), your organization's legal name, registered address and website, and a verified company Page. LinkedIn checks the email, the organization, the website and the privacy policy during identity vetting.",
+          "actor": "human",
+          "humanReason": "The form is a set of declarations about your company, and the business email has to be verified from your own inbox.",
+          "links": [
+            { "label": "My apps", "url": "https://www.linkedin.com/developers/apps" },
+            { "label": "Advertising API application review", "url": "https://www.linkedin.com/help/linkedin/answer/a527289" }
+          ],
+          "preparedValues": [
+            { "label": "Business email", "value": "An address on your company's domain, the same domain as the website you list" },
+            { "label": "Privacy policy URL", "value": "A live privacy policy on your company website that covers data from LinkedIn ad accounts" }
+          ],
+          "claimIds": ["c4", "c10", "c11", "c12", "c33"]
+        },
+        {
+          "title": "Write the use-case description",
+          "detail": "Vague or non-compliant descriptions are a reported rejection reason, and LinkedIn lists 'Unapproved Use Case' and 'Incomplete Access Request Form' among its denial reasons. Describe an ads management or reporting use case in plain terms: who your users are, which of their own ad accounts the agent touches, and what it reads and writes. Your agent can draft this for you to edit.",
+          "actor": "agent",
+          "links": [
+            { "label": "Review status definitions", "url": "https://www.linkedin.com/help/linkedin/answer/a1449586/" }
+          ],
+          "preparedValues": [
+            { "label": "Draft use-case description", "value": "<Company> builds <product>, an AI assistant for B2B marketing teams. Advertisers connect their own LinkedIn ad accounts with OAuth. The assistant reads campaign, creative and analytics data (r_ads, r_ads_reporting) so marketers can ask questions such as 'which campaigns had the lowest cost per lead last week' and get reports. With the user's approval it also creates and edits campaign groups, campaigns and lead gen forms (rw_ads) in ad accounts where the user holds a Campaign Manager or Account Manager role. We act only on accounts the authenticated member administers. We do not use member data for targeting, audience building, CRM enrichment or prospecting, and we follow LinkedIn's data storage limits." }
+          ],
+          "claimIds": ["c10", "c14", "c31", "c39"]
+        },
+        {
+          "title": "Answer follow-ups within 21 days",
+          "detail": "The request moves through Access Form Review, Identity Vetting and App Review. If reviewers need more, they write to your registered business email. Unanswered requests and surveys left unsubmitted for 21 days are marked Insufficient Details. Since May 2025 a Reapply button reloads the form for those cases. Other rejections mean creating a new app.",
+          "actor": "human",
+          "humanReason": "The replies come to your business inbox and speak for your company.",
+          "links": [
+            { "label": "LinkedIn API partner support", "url": "https://learn.microsoft.com/en-us/linkedin/shared/linkedin-api-partner-support-guide" }
+          ],
+          "preparedValues": [],
+          "claimIds": ["c10", "c12", "c13", "c15"]
+        },
+        {
+          "title": "Map your ad accounts to the app",
+          "detail": "Once approved, the Advertising API scopes appear on the Auth tab. If your agent will create or edit anything, copy each nine-digit ad account ID from Campaign Manager and add it under Products > View Ad Accounts. On the Development tier, edits to accounts not added here fail with 403. Read-only calls do not need this.",
+          "actor": "human",
+          "humanReason": "Inside your signed-in Developer Portal and Campaign Manager.",
+          "links": [
+            { "label": "Campaign Manager", "url": "https://www.linkedin.com/campaignmanager/accounts" }
+          ],
+          "preparedValues": [],
+          "claimIds": ["c5", "c6", "c7"]
+        }
+      ]
+    },
+    {
+      "name": "Connect it in Composio and test",
+      "duration": {
+        "min": 10,
+        "max": 30,
+        "unit": "minutes",
+        "label": "10-30 min",
+        "claimIds": ["c34"]
+      },
+      "limits": [
+        "Access tokens last 60 days. Refresh tokens last 365 days from the first consent and are not extended when used, so every user has to reconnect at least once a year.",
+        "Changing the requested scopes invalidates the user's earlier access tokens, and users must consent again.",
+        "Daily rate limits per app and per member are not published. They reset at midnight UTC and show in the app's Analytics tab after your first call to an endpoint."
+      ],
+      "steps": [
+        {
+          "title": "Create the LinkedIn Ads auth config in Composio",
+          "detail": "Create an OAuth2 auth config for LinkedIn Ads with your own Client ID and Client Secret from the Auth tab. Request only scopes that now appear on your app's Auth tab: LinkedIn rejects the whole sign-in if any requested scope is not available to the app. Composio's public docs do not list the toolkit's default scopes, so compare them with your Auth tab before you save.",
+          "actor": "either",
+          "links": [
+            { "label": "Composio LinkedIn Ads toolkit", "url": "https://docs.composio.dev/toolkits/linkedin_ads" },
+            { "label": "Custom auth configs", "url": "https://docs.composio.dev/docs/auth-configuration/custom-auth-configs" }
+          ],
+          "preparedValues": [
+            { "label": "Read-only reporting scopes", "value": "r_ads r_ads_reporting r_organization_admin" },
+            { "label": "Add for campaign and lead form management", "value": "rw_ads" },
+            { "label": "Add for Page admin and Page posts tools", "value": "rw_organization_admin r_organization_social w_organization_social" }
+          ],
+          "claimIds": ["c5", "c19", "c26", "c28", "c36"]
+        },
+        {
+          "title": "Connect your own LinkedIn account and run a read tool",
+          "detail": "Start a connection, approve LinkedIn's consent screen and run a read tool such as Search Ad Accounts. The member who connects must hold a role on the ad account (for example Account Manager or Campaign Manager), or reads come back empty and writes fail.",
+          "actor": "human",
+          "humanReason": "You approve the consent screen with your own LinkedIn account.",
+          "links": [],
+          "preparedValues": [],
+          "claimIds": ["c23", "c39"]
+        },
+        {
+          "title": "Check the API version your calls use",
+          "detail": "LinkedIn's Marketing APIs need a Linkedin-Version header (YYYYMM) on every call. Each monthly version is supported for at least one year, and calls with a missing or sunset version fail. Version 202511 sunsets on November 16, 2026. Composio's toolkit sets the calls, so this is mostly something to watch when tools start failing after a sunset date.",
+          "actor": "agent",
+          "links": [
+            { "label": "Marketing API versioning", "url": "https://learn.microsoft.com/en-us/linkedin/marketing/versioning" }
+          ],
+          "preparedValues": [],
+          "claimIds": ["c21"]
+        }
+      ]
+    },
+    {
+      "name": "Standard tier (only to edit more than 5 ad accounts)",
+      "duration": {
+        "min": 0,
+        "max": 6,
+        "unit": "weeks",
+        "label": "Not needed for read-only agents. Otherwise up to 30 business days after you file the ticket, plus time to record the demo",
+        "claimIds": ["c8", "c9"]
+      },
+      "limits": [
+        "Requests for data or analytics use cases alone are rejected, because reads already have no account limit.",
+        "LinkedIn may decline the upgrade even if you meet the minimum requirements."
+      ],
+      "steps": [
+        {
+          "title": "Record a demo video",
+          "detail": "Record your product creating, editing and optimizing LinkedIn campaigns through the API. If you need to create ads in more than 5 ad accounts, show that clearly in the video. Share it as a Google Drive or Microsoft SharePoint link.",
+          "actor": "human",
+          "humanReason": "The demo has to show your working product with a real signed-in session.",
+          "links": [],
+          "preparedValues": [
+            { "label": "Demo script", "value": "1. Connect a LinkedIn account through the product. 2. Ask the agent to create a campaign group and a campaign with targeting and budget. 3. Edit the campaign's budget and status. 4. Show an optimization action based on analytics. 5. Repeat in a second customer's ad account to show multi-account management." }
+          ],
+          "claimIds": ["c8"]
+        },
+        {
+          "title": "File the upgrade request as a support ticket",
+          "detail": "Standard tier is requested through a ticket on the Developer Support Portal, not a button in the app. Give your Client ID, the business use case and the video link.",
+          "actor": "human",
+          "humanReason": "A request made on behalf of your company.",
+          "links": [
+            { "label": "Developer Support Portal", "url": "https://www.linkedin.com/help/linkedin/ask/dsapi" }
+          ],
+          "preparedValues": [
+            { "label": "Ticket description", "value": "We request an upgrade of our app (Client ID <id>) from Development to Standard tier for the Advertising API. <Product> lets advertisers manage their own LinkedIn campaigns through an AI assistant: it creates, edits and optimizes campaign groups, campaigns and creatives in ad accounts where the connected member holds a manager role. Our customers manage more than 5 ad accounts in total, which the Development tier does not allow. Demo video: <link>." }
+          ],
+          "claimIds": ["c6", "c8", "c15"]
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "title": "A real, verified LinkedIn Page for your company",
+      "detail": "The app must be associated with your company's Page and verified by its super admin. The Page must belong to the same organization as the request, and the association is permanent.",
+      "claimIds": ["c2", "c3", "c10", "c11"]
+    },
+    {
+      "title": "A legally registered organization, business email, website and privacy policy",
+      "detail": "LinkedIn's identity vetting checks each of these, and failing any one is a listed rejection reason. Personal email addresses do not pass.",
+      "claimIds": ["c10", "c11"]
+    },
+    {
+      "title": "A supported ads management or reporting use case",
+      "detail": "Member data cannot be used for targeting, audience building, CRM enrichment or prospecting, and the Advertising API cannot be used to enhance Sign In with LinkedIn.",
+      "claimIds": ["c14", "c22"]
+    },
+    {
+      "title": "Users reconnect once a year",
+      "detail": "Refresh tokens expire 365 days after the first consent, however often they are used, and LinkedIn can revoke tokens at any time. LinkedIn's docs disagree on whether every approved Advertising API app gets refresh tokens at all; without them, access tokens end after 60 days.",
+      "claimIds": ["c16", "c17"]
+    },
+    {
+      "title": "Separate LinkedIn products for some Composio tools",
+      "detail": "The toolkit includes tools for DMP segments and conversion rules. On LinkedIn's side those sit in the Matched Audiences API (rw_dmp_segments) and Conversions API (rw_conversions), each with its own application. Reading lead responses needs the Lead Sync API, while creating lead gen forms is covered by rw_ads. Community Management API features need a separate app, because that product must be the only one on its app.",
+      "claimIds": ["c23", "c27", "c28", "c29", "c37"]
+    }
+  ],
+  "blockers": [
+    {
+      "title": "Ads scopes missing or 'Invalid scope'",
+      "symptom": "The consent screen fails with an invalid scope error, or the Auth tab shows no r_ads or rw_ads.",
+      "fix": "The Advertising API is not approved yet, or the auth config asks for a scope from a product you don't have. Check the Products tab status and request only the scopes listed on the Auth tab.",
+      "claimIds": ["c4", "c19", "c26"]
+    },
+    {
+      "title": "Access request rejected",
+      "symptom": "The Products tab shows Access denied with a reason such as Fail Email Verification, Fail Organization Verification, Invalid Company Page or Unapproved Use Case.",
+      "fix": "For Insufficient Details, use the Reapply button. For identity vetting denials, file a Vetting Appeal through the developer support contact form. For other rejections, fix the cause and create a new app.",
+      "claimIds": ["c10", "c13", "c15"]
+    },
+    {
+      "title": "403 when creating or editing in an ad account",
+      "symptom": "Reads work, but creating or updating campaigns returns 403.",
+      "fix": "On the Development tier, add the ad account ID under Products > View Ad Accounts (at most 5). Also check that the connected member has a manager role on that account. For more accounts, apply for Standard tier.",
+      "claimIds": ["c6", "c7", "c39"]
+    },
+    {
+      "title": "Redirect URL mismatch",
+      "symptom": "LinkedIn returns 'Redirect_uri doesn't match' before the consent screen.",
+      "fix": "Make the redirect URL on the Auth tab identical to the one in your Composio auth config. Copy it from the Composio dashboard, with no trailing slash.",
+      "claimIds": ["c18", "c26"]
+    },
+    {
+      "title": "Every connection breaks a year after it was made",
+      "symptom": "Tools fail with an invalid or expired refresh token, about 365 days after the user first connected.",
+      "fix": "Expected behavior: LinkedIn's refresh tokens have a fixed one-year life. Prompt users to reconnect before the date.",
+      "claimIds": ["c16", "c25"]
+    },
+    {
+      "title": "429 errors across many users",
+      "symptom": "Tool calls fail with 429 Too Many Requests until midnight UTC.",
+      "fix": "The app or member daily limit was reached. Check the limits in the app's Analytics tab and cut call volume; LinkedIn emails admins at 75% of the app quota.",
+      "claimIds": ["c20"]
+    },
+    {
+      "title": "Calls fail after a version sunset",
+      "symptom": "Errors about a missing or deprecated Linkedin-Version header.",
+      "fix": "Update to a supported version. Each version lasts at least a year; check the toolkit version in Composio if tools start failing after a sunset date.",
+      "claimIds": ["c21"]
+    }
+  ],
+  "handoff": {
+    "agentCan": [
+      "Check your planned use case against LinkedIn's restricted uses and data storage rules",
+      "Draft the use-case description for the Advertising API access form",
+      "Draft the message asking your Page super admin to verify the app",
+      "Pick the minimum scopes for the Composio LinkedIn Ads tools you use",
+      "Create the Composio auth config through Composio's API once you pass it the Client ID and Secret through a secure channel",
+      "Write the demo script and support ticket for the Standard tier upgrade",
+      "Track refresh-token expiry dates and remind users to reconnect before a year is up"
+    ],
+    "youMust": [
+      "Sign in and create the app in the Developer Portal, and accept LinkedIn's API terms",
+      "Get a super admin of your company's LinkedIn Page to approve the verification link",
+      "Submit the access request form with your company's legal details and verify your business email",
+      "Answer LinkedIn's follow-up emails within 21 days",
+      "Add ad account IDs to the app in the Developer Portal",
+      "Approve the first consent screen to test",
+      "Record the demo video and file the Standard tier ticket, if you need to edit more than 5 ad accounts"
+    ]
+  },
+  "unknowns": [
+    {
+      "question": "Which scopes does Composio's LinkedIn Ads toolkit request by default?",
+      "whyItMatters": "LinkedIn rejects the whole sign-in if any requested scope is not approved for your app, and some toolkit tools (DMP segments, conversion rules) belong to separate LinkedIn products.",
+      "askWhom": "Your Composio dashboard (open the LinkedIn Ads auth config), or Composio support",
+      "draftEmail": "Hi Composio team, we're setting up our own LinkedIn app for the LINKEDIN_ADS toolkit. Which OAuth scopes does the toolkit request by default, and which tools need scopes outside the Advertising API (for example rw_dmp_segments or rw_conversions)? We want to request only what our approved app has. Thanks."
+    },
+    {
+      "question": "Does a Development tier Advertising API app get programmatic refresh tokens?",
+      "whyItMatters": "Without refresh tokens, access tokens die after 60 days and users must reconnect. LinkedIn's docs say refresh tokens go to 'all approved MDP partners' on one page and to 'a limited set of partners' on another.",
+      "askWhom": "LinkedIn Developer Support",
+      "draftEmail": "Hi LinkedIn Developer Support, our app (Client ID <id>) has Advertising API access on the Development tier. Will it receive programmatic refresh tokens in the authorization code exchange, or is that limited to Standard tier or certified partners? Thanks."
+    },
+    {
+      "question": "How long does Advertising API Development tier review take today?",
+      "whyItMatters": "Nothing works until it is approved. LinkedIn publishes a timeline only for the Standard tier upgrade (up to 30 business days), and the third-party reports differ widely.",
+      "askWhom": "LinkedIn Developer Support",
+      "draftEmail": "Hi LinkedIn Developer Support, we submitted an Advertising API access request for our app (Client ID <id>) on <date>. Could you tell us the current status and the typical review time for Development tier requests? Thanks."
+    },
+    {
+      "question": "Does the Advertising API access form ask exactly what LinkedIn lists for Lead Sync (business email, legal name, registered address, website)?",
+      "whyItMatters": "LinkedIn publishes those prerequisites on its Lead Sync access page; the Advertising API pages list the review statuses and denial reasons, which match, but not the form fields themselves.",
+      "askWhom": "LinkedIn Developer Support, or anyone who has filled in the form recently"
+    },
+    {
+      "question": "Why does Composio offer a managed app for LinkedIn but not for LinkedIn Ads?",
+      "whyItMatters": "Confirms whether this will change. The likely reason is that Advertising API access is vetted per app and the Development tier caps editing at 5 ad accounts per app, but Composio does not say so.",
+      "askWhom": "Composio support",
+      "draftEmail": "Hi Composio team, LinkedIn is Composio-managed but LinkedIn Ads is bring-your-own. Is that because of LinkedIn's Advertising API vetting and tier limits, and are there plans for a managed LinkedIn Ads app? Thanks."
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "text": "LinkedIn's quick start for API access: create a LinkedIn Page, create a developer app, review the API and data restrictions, apply to the API under the app's Products tab, and complete the access form.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/marketing/quick-start", "title": "LinkedIn: Marketing API Quick Start", "quote": "Review our API and data restrictions to ensure your use case is supported and your application is not rejected due to a restricted use case.", "publishedAt": "2026-02-16", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c2",
+      "text": "Certain products require associating the app with a LinkedIn Page. The request is sent from the app's Settings tab (Verify > Generate URL) to a Page super admin, who approves or denies it via that URL within 30 days.",
+      "evidence": "official",
+      "sources": [
+        { "url": "https://www.linkedin.com/help/learning/answer/a1665329", "title": "LinkedIn Help: Send an app verification request for a LinkedIn Page", "quote": "Your Page super admin has 30 days to verify the app with the unique URL.", "accessedAt": "2026-10-20" },
+        { "url": "https://www.linkedin.com/help/linkedin/answer/a548360/associate-an-app-with-a-linkedin-page", "title": "LinkedIn Help: Associate an app with a LinkedIn Page", "quote": "For certain functionality and products, you're required to associate your app with a LinkedIn Page.", "accessedAt": "2026-10-20" }
+      ]
+    },
+    {
+      "id": "c3",
+      "text": "Apps are permanently associated with one LinkedIn Page and cannot be transferred to another.",
+      "evidence": "official",
+      "sources": [{ "url": "https://www.linkedin.com/help/linkedin/answer/a548360/associate-an-app-with-a-linkedin-page", "title": "LinkedIn Help: Associate an app with a LinkedIn Page", "quote": "Apps are permanently associated with a specific LinkedIn Page and cannot be transferred to another page.", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c4",
+      "text": "Only Sign In with LinkedIn using OpenID Connect and Share on LinkedIn are open, self-serve products. Advertising API permissions must be approved by LinkedIn, requested from the app's Products tab.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access", "title": "LinkedIn: Getting Access to LinkedIn APIs", "quote": "Developers seeking to build a marketing related integration using Advertising API permissions must be approved.", "publishedAt": "2025-06-24", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c5",
+      "text": "Approval of the Advertising API grants r_ads, rw_ads, r_ads_reporting, r_organization_admin, rw_organization_admin, r_organization_social, w_organization_social, w_member_social, r_basicprofile and r_1st_connections_size, plus boost permissions from version 202610. Permissions are granted to the app automatically once access is approved.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/marketing/increasing-access", "title": "LinkedIn: Increasing Access", "quote": "Once your API access is approved, the corresponding permissions are automatically granted to your application.", "publishedAt": "2026-10-14", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c6",
+      "text": "All apps start on the Development tier. Advertising API Development tier allows unlimited reads for ad accounts the member administers, creating 1 test ad account through the API, and edits to up to 5 ad accounts. Standard tier allows unlimited creates and edits and is requested through a support ticket on the Developer Support Portal.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/marketing/increasing-access", "title": "LinkedIn: Increasing Access", "quote": "Development tier is designed to build end-to-end workflows and supports read-only access for unlimited ad accounts and edit capabilities for up to five (5) Ad Accounts.", "publishedAt": "2026-10-14", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c7",
+      "text": "On the Development tier, ad accounts are mapped to the app under Products > View Ad Accounts by their nine-digit ID; a 403 on creating or updating an ad account often means the account has not been added.",
+      "evidence": "official",
+      "sources": [
+        { "url": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads/getting-started", "title": "LinkedIn: Campaign Management Getting Started", "quote": "This step is only required for a developer application with development tier access of the Advertising API.", "accessedAt": "2026-10-20" },
+        { "url": "https://learn.microsoft.com/en-us/linkedin/marketing/lms-faq", "title": "LinkedIn: Marketing API FAQ", "quote": "Often, if your app is on Developer access tier, it may indicate the ad account hasn't been added to your app in Developer Portal.", "accessedAt": "2026-10-20" }
+      ]
+    },
+    {
+      "id": "c8",
+      "text": "The Standard tier upgrade is only needed to create ads for more than 5 ad accounts. The request needs a business use case and a demo video of campaign creation, editing and optimization; data or analytics-only upgrade requests are rejected; review can take up to 30 business days.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/shared/linkedin-api-partner-support-guide", "title": "LinkedIn: API Partner Support", "quote": "The review process can take up to 30 business days due to the high volume of requests.", "publishedAt": "2026-05-18", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c9",
+      "text": "For the Advertising API, apps do not need the Standard tier unless they build a campaign management solution for multiple ad accounts.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/marketing/lms-faq", "title": "LinkedIn: Marketing API FAQ", "quote": "For the Advertising API, you don't need to upgrade to Standard tier unless you plan to build a campaign management solution for multiple ad accounts.", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c10",
+      "text": "LinkedIn's review statuses are Access Form Review, Identity Vetting and App Review. Listed rejection reasons include an incomplete form, an unapproved use case, failed email verification, failure to verify the organization as a legally registered active entity, an invalid company website, a Page belonging to a different organization, an invalid privacy policy, and an app name using LinkedIn or Microsoft names.",
+      "evidence": "official",
+      "sources": [{ "url": "https://www.linkedin.com/help/linkedin/answer/a1449586/", "title": "LinkedIn Help: Developer application review status definitions", "quote": "We were unable to verify that your organization is a legally registered, active entity.", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c11",
+      "text": "LinkedIn's published prerequisites for Marketing API access (on its Lead Sync access page) require a verified business email (personal emails fail), the organization's legal name, registered address and website, Company Page verification without a fake or test Page, and an app name free of LinkedIn or Microsoft names. Failing any prerequisite leads to rejection.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/marketing/lead-sync/getting-access-leadsync", "title": "LinkedIn: Getting Access to Lead Sync", "quote": "Personal email addresses won't pass the review process.", "publishedAt": "2026-08-07", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c12",
+      "text": "For products that require vetting, a survey appears in the Developer Portal and must be completed within 21 days. Reviewers request more information via the registered business email; unanswered or unsubmitted requests are marked Insufficient Details.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/shared/linkedin-api-partner-support-guide", "title": "LinkedIn: API Partner Support", "quote": "You must complete this survey within 21 days from the date it is triggered.", "publishedAt": "2026-05-18", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c13",
+      "text": "Since May 2025 (version 202505), expired requests and those declined for insufficient details can be resubmitted with a Reapply button; for other rejections LinkedIn says to create a new app.",
+      "evidence": "official",
+      "sources": [
+        { "url": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/recent-changes", "title": "LinkedIn: Recent Marketing API Changes", "quote": "A Reapply CTA replaces \"Access denied\", reloads the original form for edits, and creates a new case", "publishedAt": "2025-05", "accessedAt": "2026-10-20" },
+        { "url": "https://www.linkedin.com/help/linkedin/answer/a527289", "title": "LinkedIn Help: Advertising API application review and developer support", "accessedAt": "2026-10-20" }
+      ]
+    },
+    {
+      "id": "c14",
+      "text": "Advertising API requests can be denied for missing information or a use case outside supported marketing scenarios, and the Advertising API cannot be used to enhance Sign In with LinkedIn or collect member profile information.",
+      "evidence": "official",
+      "sources": [{ "url": "https://www.linkedin.com/help/linkedin/answer/a527289", "title": "LinkedIn Help: Advertising API application review and developer support", "quote": "Advertising API can't be used to enhance Sign-In with LinkedIn or to collect member profile information", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c15",
+      "text": "LinkedIn approves API access at its discretion and may not upgrade a partner even if it meets the minimum requirements. Identity vetting denials can be appealed through the developer support contact form.",
+      "evidence": "official",
+      "sources": [
+        { "url": "https://learn.microsoft.com/en-us/linkedin/marketing/increasing-access", "title": "LinkedIn: Increasing Access", "quote": "LinkedIn reserves the right to review applications and select partners at its discretion and a partner might not be upgraded even if they meet these minimum requirements.", "publishedAt": "2026-10-14", "accessedAt": "2026-10-20" },
+        { "url": "https://learn.microsoft.com/en-us/linkedin/shared/linkedin-api-partner-support-guide", "title": "LinkedIn: API Partner Support", "quote": "If your API access is denied due to identity vetting issues, submit a vetting appeal using the Contact form.", "publishedAt": "2026-05-18", "accessedAt": "2026-10-20" }
+      ]
+    },
+    {
+      "id": "c16",
+      "text": "Access tokens are valid for 60 days and programmatic refresh tokens for 365 days. Refreshing does not extend the refresh token's life, the member must reauthorize when it expires, and LinkedIn may revoke tokens at any time.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens", "title": "LinkedIn: Refresh Tokens with OAuth 2.0", "quote": "When you use a refresh token to generate a new access token, the lifespan or Time To Live (TTL) of the refresh token remains the same as specified in the initial OAuth flow (365 days), and the new access token has a new TTL of 60 days.", "publishedAt": "2025-05-31", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c17",
+      "text": "LinkedIn's docs disagree on who gets programmatic refresh tokens: the refresh token page says all approved Marketing Developer Platform partners, the authorization code flow page says a limited set of partners.",
+      "evidence": "official",
+      "sources": [
+        { "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens", "title": "LinkedIn: Refresh Tokens with OAuth 2.0", "quote": "LinkedIn supports programmatic refresh tokens for all approved Marketing Developer Platform (MDP) partners.", "publishedAt": "2025-05-31", "accessedAt": "2026-10-20" },
+        { "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow", "title": "LinkedIn: 3-Legged OAuth Flow", "quote": "Programmatic refresh tokens are available for a limited set of partners.", "publishedAt": "2025-11-10", "accessedAt": "2026-10-20" }
+      ]
+    },
+    {
+      "id": "c18",
+      "text": "Redirect URLs must be absolute HTTPS URLs without a #; query parameters are ignored; the redirect_uri in the request must match one of the app's registered redirect URLs, or LinkedIn returns 401 'Redirect_uri doesn't match'.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow", "title": "LinkedIn: 3-Legged OAuth Flow", "quote": "This value must match one of the Redirect URLs defined in your application configuration.", "publishedAt": "2025-11-10", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c19",
+      "text": "Members must consent to all requested scopes at once; scopes not assigned to the app return an invalid scope error; requesting a different scope invalidates previous access tokens, and scope changes require users to re-authenticate.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow", "title": "LinkedIn: 3-Legged OAuth Flow", "quote": "If you request a different scope than the previously granted scope, all the previous access tokens are invalidated.", "publishedAt": "2025-11-10", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c20",
+      "text": "LinkedIn rate limits are daily per application and per member, reset at midnight UTC, and are not published; they appear in the app's Analytics tab after one call to an endpoint. Limited requests get 429, and admins get an email alert at 75% of the app quota.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/shared/api-guide/concepts/rate-limits", "title": "LinkedIn: API Rate Limiting", "quote": "Standard rate limits are not published in documentation.", "publishedAt": "2025-06-18", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c21",
+      "text": "Marketing API calls must send a Linkedin-Version header (YYYYMM). Versions are released monthly and supported for at least one year; missing or deprecated version headers return an error. Version 202511 sunsets on November 16, 2026.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/marketing/versioning", "title": "LinkedIn: Marketing API Versioning", "quote": "LinkedIn Marketing API Program publishes new versions monthly, and those versions are supported for a minimum of one (1) year.", "publishedAt": "2026-10-15", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c22",
+      "text": "LinkedIn restricts member data: no use for advertising, sales or recruiting (including audience lists, CRM enrichment and ad targeting), social activity stored at most 48 hours and most profile data 24 hours, and no individual profiles used to manage multiple customers' accounts. Breaking the terms results in loss of API access.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/marketing/restricted-use-cases", "title": "LinkedIn: Restricted Uses of LinkedIn Marketing APIs and Data", "quote": "Do not create fake profiles to manage ad accounts or use individual profiles to manage multiple customers' accounts.", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c23",
+      "text": "Composio's LinkedIn Ads toolkit (LINKEDIN_ADS) uses OAuth2, has no Composio-managed OAuth, and offers 28 tools covering ad accounts, campaigns, analytics, lead forms, targeting, organization statistics, conversion rules, DMP segments and posts.",
+      "evidence": "official",
+      "sources": [{ "url": "https://docs.composio.dev/toolkits/linkedin_ads", "title": "Composio: LinkedIn Ads toolkit", "quote": "Composio-managed OAuth available? No", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c24",
+      "text": "Composio's managed OAuth directory lists LinkedIn (LINKEDIN) as Composio-managed and LinkedIn Ads (LINKEDIN_ADS) under bring your own OAuth app.",
+      "evidence": "official",
+      "sources": [
+        { "url": "https://docs.composio.dev/toolkits/managed-auth", "title": "Composio: Managed OAuth apps", "quote": "If the field does not contain that method, register your own OAuth app and supply its client ID and client secret.", "accessedAt": "2026-10-20" },
+        { "url": "https://docs.composio.dev/toolkits/linkedin", "title": "Composio: LinkedIn toolkit", "quote": "Composio-managed OAuth available? Yes", "accessedAt": "2026-10-20" }
+      ]
+    },
+    {
+      "id": "c25",
+      "text": "Composio says LinkedIn Ads connections must go through your own OAuth app, registered once, and that Composio refreshes tokens automatically; a revoked or invalidated session shows as expired until the user reconnects.",
+      "evidence": "official",
+      "sources": [{ "url": "https://composio.dev/toolkits/linkedin_ads", "title": "Composio: LinkedIn Ads integration", "quote": "Linkedin Ads requires connections to go through your own OAuth app.", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c26",
+      "text": "Composio's LinkedIn knowledge base says to register the exact callback shown by the current Composio auth-config flow for LinkedIn Ads, without guessing between legacy versions or adding trailing slashes, and warns that LinkedIn rejects the complete OAuth request when any requested scope is unavailable to the app.",
+      "evidence": "official",
+      "sources": [{ "url": "https://docs.composio.dev/kb/guide/toolkits-linkedin", "title": "Composio KB: LinkedIn toolkit", "quote": "LinkedIn rejects the complete OAuth request when any requested scope is unavailable to the developer app.", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c27",
+      "text": "LinkedIn's docs disagree on Matched Audiences access (rw_dmp_segments): the August 2026 changelog and the Increasing Access page say it is generally available to apply for in the Developer Portal, while the Marketing API FAQ still calls it a private program with an interest form and a reply within 60 days only if LinkedIn sees a fit.",
+      "evidence": "official",
+      "sources": [
+        { "url": "https://learn.microsoft.com/en-us/linkedin/marketing/integrations/recent-changes", "title": "LinkedIn: Recent Marketing API Changes (August 2026, 202608)", "quote": "Starting August 2026, the Matched Audiences API is now generally available for application to all qualified developers.", "publishedAt": "2026-08", "accessedAt": "2026-10-20" },
+        { "url": "https://learn.microsoft.com/en-us/linkedin/marketing/lms-faq", "title": "LinkedIn: Marketing API FAQ", "quote": "LinkedIn will contact you up to 60 days after the form submission only if we will identify meeting access criteria and a strong partnership fit.", "accessedAt": "2026-10-20" }
+      ]
+    },
+    {
+      "id": "c28",
+      "text": "Creating and managing Lead Gen Forms uses rw_ads under the Advertising API; retrieving lead responses needs the Lead Sync API permission r_marketing_leadgen_automation.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/marketing/lead-sync/getting-access-leadsync", "title": "LinkedIn: Getting Access to Lead Sync", "quote": "If you want to create and manage LinkedIn Lead Gen Forms, you should request access to the Advertising API and use the lead syncing endpoints available within the rw_ads permission to create a Lead Gen Form.", "publishedAt": "2026-08-07", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c29",
+      "text": "The Conversions API (rw_conversions) and Matched Audiences API (rw_dmp_segments) are separate products with their own applications, and Advertising API access is required before applying to Matched Audiences.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/marketing/increasing-access", "title": "LinkedIn: Increasing Access", "quote": "Access to Advertising API is a mandatory requirement for applying to Matched Audiences API, Audience Insights API and Media Planning API.", "publishedAt": "2026-10-14", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c30",
+      "text": "An integration vendor's LinkedIn Ads setup guide reports that LinkedIn reviews all Advertising API access requests manually and that review typically takes several business days (page undated, shown as updated about five months before access).",
+      "evidence": "community",
+      "sources": [{ "url": "https://developers.frontegg.com/agen-for-work/connectors/marketplace/linkedin-ads", "title": "Frontegg: LinkedIn Ads connector setup", "quote": "LinkedIn reviews all Advertising API access requests manually. Review typically takes several business days.", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c31",
+      "text": "A June 2026 blog post reports that Advertising API review can take several days or longer and that vague or non-compliant use-case descriptions get rejected.",
+      "evidence": "community",
+      "sources": [{ "url": "https://zenabm.com/blog/linkedin-ads-api", "title": "ZenABM: LinkedIn Ads API, what it is and how to access it (Jun 2026)", "quote": "this review is where the wait comes in, and it can take several days or longer", "publishedAt": "2026-06-20", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c32",
+      "text": "An August 2026 guide from a vendor of a LinkedIn API alternative claims Marketing API approval realistically takes 4-8 weeks on the fast path and 3-4 months on average, and that rejections are common and rarely explained. It does not cite first-hand cases and the vendor sells an alternative.",
+      "evidence": "community",
+      "sources": [{ "url": "https://connectsafely.ai/articles/linkedin-api-complete-guide-2026", "title": "ConnectSafely: LinkedIn API 2026 guide (Aug 2026)", "quote": "approval is realistically 4-8 weeks on the fast path and 3-4 months on average", "publishedAt": "2026-08-26", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c33",
+      "text": "A unified-API vendor's guide (May 2026, updated October 2026) reports that incomplete company information on the app is a common rejection reason and that approval is not instant.",
+      "evidence": "community",
+      "sources": [{ "url": "https://unified.to/blog/how_to_get_your_linkedin_ads_api_key", "title": "Unified.to: How to get your LinkedIn Ads API key", "quote": "Incomplete company info is a common rejection reason, so complete this fully.", "publishedAt": "2026-05-25", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c34",
+      "text": "Estimate: app creation, Page verification (when you are the super admin), redirect setup and the Composio connection take under an hour each, based on the number of console steps; the overall 1-8 week testing range adds the unpublished review wait reported by third parties. Not timed in a real attempt.",
+      "evidence": "unknown",
+      "sources": []
+    },
+    {
+      "id": "c35",
+      "text": "Estimate: Composio does not state why LinkedIn Ads has no managed app. The likely reasons are that Advertising API access is vetted per app and company, and that a Development tier app can edit only 5 mapped ad accounts.",
+      "evidence": "unknown",
+      "sources": []
+    },
+    {
+      "id": "c36",
+      "text": "Composio's public LinkedIn Ads docs do not list the scopes the toolkit requests by default.",
+      "evidence": "unknown",
+      "sources": []
+    },
+    {
+      "id": "c37",
+      "text": "The Community Management API must be the only product on its developer app; apps with other products (such as the Ads API) need a separate app for it.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/shared/linkedin-api-partner-support-guide", "title": "LinkedIn: API Partner Support", "quote": "The Community Management API requires that it be the only product associated with a developer application due to legal and security constraints.", "publishedAt": "2026-05-18", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c38",
+      "text": "Composio's LinkedIn credentials guide has you create the app with a name, company Page URL and logo, accept the legal terms, copy the Client ID and Secret from the Auth tab and add the redirect URI there; it shows https://backend.composio.dev/api/v3/toolkits/auth/callback as the redirect URI.",
+      "evidence": "official",
+      "sources": [{ "url": "https://composio.dev/auth/linkedin", "title": "Composio: How to create OAuth2 credentials for LinkedIn", "accessedAt": "2026-10-20" }]
+    },
+    {
+      "id": "c39",
+      "text": "rw_ads is restricted to ad accounts where the member holds ACCOUNT_BILLING_ADMIN, ACCOUNT_MANAGER, CAMPAIGN_MANAGER or CREATIVE_MANAGER, and members need the matching Page and ad account roles to read or act on them.",
+      "evidence": "official",
+      "sources": [{ "url": "https://learn.microsoft.com/en-us/linkedin/marketing/increasing-access", "title": "LinkedIn: Increasing Access", "quote": "Restricted to ad accounts where the authenticated member has one of the following roles: ACCOUNT_BILLING_ADMIN, ACCOUNT_MANAGER, CAMPAIGN_MANAGER, CREATIVE_MANAGER.", "publishedAt": "2026-10-14", "accessedAt": "2026-10-20" }]
+    }
+  ]
+}
