@@ -6,7 +6,7 @@ import type { PipelineEvent } from "@/lib/pipeline/types";
 import { getGuide, saveLiveGuide } from "@/lib/store";
 import { findToolkit } from "@/lib/toolkits";
 
-export const maxDuration = 800; // seconds; research runs a few minutes
+export const maxDuration = 300; // seconds: Vercel Hobby maximum; a live run takes about 2-3 minutes
 
 // Per-instance abuse guard. Good enough for a demo; a shared limit would live in Redis.
 const hits = new Map<string, number[]>();
