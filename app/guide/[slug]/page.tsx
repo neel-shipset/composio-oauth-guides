@@ -1,8 +1,19 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { GuideView } from "@/app/components/GuideView";
 import { getGuide } from "@/lib/store";
 import { siteUrl } from "@/lib/site";
+import { DIFFICULTY } from "@/lib/render/labels";
+
+// Tab title and link preview: the verdict, so a shared link already answers the question.
+export async function generateMetadata({ params }: PageProps<"/guide/[slug]">): Promise<Metadata> {
+  const found = await getGuide((await params).slug);
+  if (!found) return { title: "Guide not found" };
+  const g = found.guide;
+  const title = `${g.name} OAuth app: ${g.verdict.difficulty}/5 ${DIFFICULTY[g.verdict.difficulty].name}`;
+  return { title, description: g.verdict.summary, openGraph: { title, description: g.verdict.summary } };
+}
 
 export default function GuidePage({ params }: PageProps<"/guide/[slug]">) {
   return (

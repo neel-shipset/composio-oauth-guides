@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { PipelineEvent, StageName } from "@/lib/pipeline/types";
@@ -14,6 +15,15 @@ const STAGES: { id: StageName; label: string; detail: string }[] = [
 
 type Status = "waiting" | "started" | "done" | "skipped";
 
+// Turn pipeline and API errors into something a visitor can act on.
+function friendly(message: string): string {
+  if (/spend cap|run stopped/i.test(message)) return "This run reached its spending cap before the guide was finished. Try again, or open a library guide.";
+  if (/usage limit|credit balance|rate.?limit|429|overloaded|529/i.test(message)) return "The research service is busy or out of quota right now. Please try again in a little while, or open a library guide.";
+  if (/could not find a product/i.test(message)) return message;
+  if (/did not match the schema|cut off/i.test(message)) return "The writer could not produce a valid guide this time. Please try again.";
+  return `Something went wrong: ${message}`;
+}
+
 export function LiveGenerator({ query }: { query: string }) {
   const router = useRouter();
   const [status, setStatus] = useState<Record<string, Status>>({});
@@ -23,9 +33,10 @@ export function LiveGenerator({ query }: { query: string }) {
   const started = useRef(false);
 
   useEffect(() => {
+    if (error) return; // stop counting once the run has stopped
     const t = setInterval(() => setSeconds((s) => s + 1), 1000);
     return () => clearInterval(t);
-  }, []);
+  }, [error]);
 
   useEffect(() => {
     if (started.current) return;
@@ -37,11 +48,12 @@ export function LiveGenerator({ query }: { query: string }) {
         body: JSON.stringify({ query }),
       });
       if (!res.ok || !res.body) {
-        setError((await res.json().catch(() => ({ error: res.statusText }))).error);
+        setError(friendly((await res.json().catch(() => ({ error: res.statusText }))).error ?? res.statusText));
         return;
       }
       const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
       let buffer = "";
+      let finished = false;
       for (;;) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -53,17 +65,25 @@ export function LiveGenerator({ query }: { query: string }) {
           const e = JSON.parse(part.slice(6)) as PipelineEvent;
           if (e.type === "stage") setStatus((s) => ({ ...s, [e.stage]: e.status }));
           if (e.type === "log") setLogs((l) => ({ ...l, [e.stage]: [...(l[e.stage] ?? []), e.message] }));
-          if (e.type === "error") setError(e.message);
-          if (e.type === "done") router.replace(`/guide/${e.guide.slug}`);
+          if (e.type === "error") {
+            finished = true;
+            setError(friendly(e.message));
+          }
+          if (e.type === "done") {
+            finished = true;
+            router.replace(`/guide/${e.guide.slug}`);
+          }
         }
       }
-    })().catch((e) => setError(String(e)));
+      // The hosting platform ends requests after five minutes; never leave the page spinning.
+      if (!finished) setError("The research took too long and was stopped. Please try again; it usually finishes in two to three minutes.");
+    })().catch((e) => setError(friendly(String(e))));
   }, [query, router]);
 
   return (
     <div className="mt-8 space-y-3">
       <p className="text-sm text-muted">
-        {error ? "Stopped." : `Working… ${seconds}s`} Only two steps use a large model; the rest is plain code.
+        {error ? "Stopped." : `Working… ${seconds}s (usually two to three minutes).`} Only two steps use a large model; the rest is plain code.
       </p>
       {STAGES.map((s) => {
         const st = status[s.id] ?? "waiting";
@@ -91,7 +111,14 @@ export function LiveGenerator({ query }: { query: string }) {
           </div>
         );
       })}
-      {error && <p className="rounded-lg border border-border bg-surface p-4 text-sm" style={{ color: "var(--d5)" }}>{error}</p>}
+      {error && (
+        <div className="rounded-lg border border-border bg-surface p-4 text-sm">
+          <p style={{ color: "var(--d5)" }}>{error}</p>
+          <Link href="/" className="mt-2 inline-block text-accent hover:underline">
+            Back to the library
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

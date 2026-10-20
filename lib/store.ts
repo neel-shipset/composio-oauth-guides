@@ -25,8 +25,28 @@ export async function getGuide(slug: string): Promise<{ guide: Guide; source: "l
 }
 
 export async function saveLiveGuide(guide: Guide) {
-  if (redisUrl) return redisCommand(["SET", `guide:${guide.slug}`, JSON.stringify(guide)]);
+  if (redisUrl) {
+    await redisCommand(["SET", `guide:${guide.slug}`, JSON.stringify(guide)]);
+    // Most recent first, no duplicates, last 24 kept: shown on the home page.
+    await redisCommand(["LREM", "recent", "0", guide.slug]);
+    await redisCommand(["LPUSH", "recent", guide.slug]);
+    await redisCommand(["LTRIM", "recent", "0", "23"]);
+    return;
+  }
   await fs.writeFile(path.join(GENERATED_DIR, `${guide.slug}.json`), JSON.stringify(guide, null, 2) + "\n");
+}
+
+// Live-generated guides, newest first (library guides excluded).
+export async function listLiveGuides(): Promise<Guide[]> {
+  if (redisUrl) {
+    const { result } = await redisCommand(["LRANGE", "recent", "0", "23"]);
+    const slugs = Array.isArray(result) ? (result as string[]) : [];
+    const guides = await Promise.all(slugs.map((s) => redisGet(`guide:${s}`).catch(() => null)));
+    return guides.filter((g): g is Guide => g !== null);
+  }
+  const files = (await fs.readdir(GENERATED_DIR).catch(() => [])).filter((f) => f.endsWith(".json") && !f.endsWith(".run.json") && !f.endsWith(".eval.json"));
+  const guides = await Promise.all(files.map((f) => readGuideFile(path.join(GENERATED_DIR, f)).catch(() => null)));
+  return guides.filter((g): g is Guide => g !== null);
 }
 
 async function readGuideFile(file: string): Promise<Guide | null> {
