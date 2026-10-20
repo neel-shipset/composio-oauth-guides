@@ -5,18 +5,9 @@ import { PROFILES } from "@/lib/pipeline/profile";
 import type { PipelineEvent } from "@/lib/pipeline/types";
 import { getGuide, saveLiveGuide } from "@/lib/store";
 import { findToolkit } from "@/lib/toolkits";
+import { allowed, clientIp } from "@/lib/ratelimit";
 
 export const maxDuration = 300; // seconds: Vercel Hobby maximum; a live run takes about 2-3 minutes
-
-// Per-instance abuse guard. Good enough for a demo; a shared limit would live in Redis.
-const hits = new Map<string, number[]>();
-function allowed(ip: string) {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < 3600_000);
-  if (recent.length >= config.rateLimitPerIpPerHour) return false;
-  hits.set(ip, [...recent, now]);
-  return true;
-}
 
 // Live generation. Streams pipeline events as Server-Sent Events, then saves the guide for sharing.
 export async function POST(request: Request) {
@@ -32,8 +23,7 @@ export async function POST(request: Request) {
   const cached = known ? await getGuide(known.slug.toLowerCase()) : null;
   if (cached) return new Response(sse({ type: "done", guide: cached.guide }), { headers: { "Content-Type": "text/event-stream" } });
 
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  if (!allowed(ip)) return Response.json({ error: "Rate limit reached. Try again in an hour." }, { status: 429 });
+  if (!allowed(`generate:${clientIp(request)}`, config.rateLimitPerIpPerHour)) return Response.json({ error: "Rate limit reached. Try again in an hour." }, { status: 429 });
 
   const stream = new ReadableStream({
     async start(controller) {

@@ -1,6 +1,7 @@
 import { config } from "@/lib/config";
 import { runAgent, webSearch, withBudget } from "@/lib/llm";
 import { getGuide } from "@/lib/store";
+import { allowed, clientIp } from "@/lib/ratelimit";
 
 export const maxDuration = 120;
 
@@ -13,6 +14,8 @@ Plain text, under 150 words.`;
 export async function POST(request: Request) {
   const { slug, step, problem } = (await request.json().catch(() => ({}))) as { slug?: string; step?: string; problem?: string };
   if (!slug || !problem?.trim()) return Response.json({ error: "Describe what you see." }, { status: 400 });
+  // Each answer spends API credit (capped at $0.25), so limit questions per visitor.
+  if (!allowed(`stuck:${clientIp(request)}`, 20)) return Response.json({ error: "Too many questions this hour. Try again later." }, { status: 429 });
   const found = await getGuide(slug);
   if (!found) return Response.json({ error: "Guide not found." }, { status: 404 });
 
