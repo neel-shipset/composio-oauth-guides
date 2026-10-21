@@ -1,112 +1,197 @@
 # OAuth App Guides
 
-Look up any app and get a shareable guide to getting **your own OAuth app** set up and approved: how hard it is, how long it takes including the approval wait, what can block you, what an agent can do for you and where you have to take over. Every claim is labelled **tested**, **official**, **community** or **unverified**, and links to its source.
+**How hard is it to get your own OAuth app approved, and what will stop you?**
 
-Built for the Composio APM (toolkits) take-home.
+A developer building an AI agent on Composio types in an app (Jira, Gmail, Slack, anything) and gets a shareable guide. The guide answers the planning question first: how long until real users can connect, and what could block it. Then it gives the steps, says which ones an agent can do and which need a person, and links every claim to its source.
 
 - **Live:** https://oauth-guides-neel.vercel.app
-- **Code:** https://github.com/neel-shipset/composio-oauth-guides
-- **Try:** open a library guide (e.g. [Jira](https://oauth-guides-neel.vercel.app/guide/jira)), or type an app that is not in the library, such as HubSpot, to watch it researched live
-- **Library:** 9 guides, difficulty 2 to 5: GitHub, Jira, Notion MCP, X, Zoom, Gmail, Slack, Shopify, LinkedIn Ads
-- **Live generation:** type any app; about $0.30 and 2-3 minutes per new guide
+- **Try it:** open a library guide such as [Slack](https://oauth-guides-neel.vercel.app/guide/slack) or [Gmail](https://oauth-guides-neel.vercel.app/guide/gmail), or type an app that is not in the library and watch it get researched live (two to three minutes).
+- **Built for:** the Composio APM (toolkits) take-home.
 
-## The problem, as I understood it
+## Contents
 
-A developer on Composio starts on Composio's managed OAuth app. To go to production they usually need their own: their name on the consent screen, their own scopes, their own quota. For 211 toolkits there is no managed app at all.
+1. [Terms used here](#terms-used-here)
+2. [The problem](#the-problem)
+3. [What a guide contains](#what-a-guide-contains)
+4. [What I found](#what-i-found)
+5. [How it works](#how-it-works)
+6. [How accuracy is enforced](#how-accuracy-is-enforced)
+7. [Key decisions](#key-decisions)
+8. [Cost and safety](#cost-and-safety)
+9. [Limitations](#limitations)
+10. [Using this inside Composio](#using-this-inside-composio)
+11. [Run it locally](#run-it-locally)
+12. [Project layout](#project-layout)
 
-Composio already publishes step-by-step credential walkthroughs. What a developer cannot find is the answer to the planning question: **can I get this approved before my launch, and what will stop me?** That answer is spread across policy pages, forum threads and changelogs, and it changes. So every guide leads with a verdict (difficulty, time to testing, time to production, main blocker), and the click-by-click steps come after.
+## Terms used here
+
+| Term | Meaning |
+|---|---|
+| **OAuth app** | The registration a developer creates with a provider (Google, Slack, Atlassian) so their users can click "Connect" and grant access. It holds the app's name, permissions (scopes) and callback address. |
+| **Toolkit** | Composio's integration for one app, such as the Jira toolkit. |
+| **Composio-managed OAuth** | Composio already has an OAuth app for this toolkit, so developers can connect users with no setup. Composio lists 123 such toolkits. |
+| **Bring your own OAuth app** | Composio has no OAuth app for this toolkit, so the developer must register one with the provider. Composio lists 211 such toolkits. |
+| **Provider review / verification** | A check by the provider (for example Google or Zoom) before an OAuth app may be used by people outside the developer's own account. |
+| **MCP server** | A hosted endpoint that AI agents connect to, such as Notion's or Linear's. |
+| **Dynamic client registration (DCR)** | A feature of the MCP standard: the client registers itself automatically, so nobody has to create an OAuth app by hand. |
+| **Evidence label** | Each claim in a guide is marked *tested* (we observed it), *official* (the provider's own docs or staff), *community* (forums, blogs, reported experiences) or *unverified* (an estimate or an open question). |
+
+## The problem
+
+A developer starts on Composio's managed OAuth app because it works with no setup. Before launch, they usually need their own: so users see the developer's product name on the "allow access" screen instead of Composio's, and so they get their own scopes and their own usage limits. For 211 toolkits there is no managed option at all.
+
+Creating an OAuth app is quick, and Composio already documents the clicks. **Getting it approved for real users is where launches slip**, and the effort varies enormously:
+
+| App | Time until outside users can connect | What stands in the way |
+|---|---|---|
+| GitHub | Same day | No review. Customers' GitHub organisations must approve the app. |
+| Zoom | 1 to 6 weeks | Mandatory review by Zoom before anyone outside your account can connect. |
+| Gmail | 2 to 12 weeks | Google verification, plus a paid yearly security assessment for reading email. |
+| LinkedIn Ads | 1 to 16 weeks, or never | LinkedIn vets the company and can refuse access. |
+
+That planning answer is spread across policy pages, forum threads and changelogs, and it changes over time. This project puts it in one place, per app.
 
 ## What a guide contains
 
-1. **Verdict:** difficulty 1-5 on a fixed rubric ([docs/rubric.md](docs/rubric.md)), time to testing, time to production, main blocker, confidence.
-2. **Do you need your own app?** Required / recommended for production / not needed, with concrete reasons (for example Atlassian's single 65,000-point hourly quota shared by every site an app is used on).
-3. **Stages and steps**, each tagged *agent can do*, *you do* or *either*, with copy-paste values and the reason a human is needed.
-4. **Requirements, blockers** (what you see, how to fix it) and **unknowns**, each unknown with a ready-to-send email to the right team.
-5. **Sources**, every claim numbered and colour-coded by evidence.
-6. **Share:** link, copy as Markdown, copy for Slack, download .md. **Guided setup:** a checklist that remembers progress, with an "I'm stuck" assistant.
+| Section | What it tells the developer |
+|---|---|
+| **Verdict** | Difficulty on a fixed 1 to 5 scale ([rubric](docs/rubric.md)), time to testing, time to production (including approval waits), the main blocker, and a confidence level. |
+| **Do you need your own OAuth app?** | Required, recommended for production, or not needed, with concrete reasons. |
+| **Stages and steps** | What to do, in order. Each step is marked *agent can do*, *you do* or *either*, with the reason a person is needed (usually a sign-in or a legal declaration) and values ready to copy. |
+| **Requirements and blockers** | What the provider asks for, and the errors you might hit (what you see, and the fix). |
+| **What an agent can do, and what you must do** | A two-column summary of the hand-off. |
+| **Not yet known** | Open questions, each with who to ask and a ready-to-send email. |
+| **Sources and evidence** | Every claim, numbered, with its evidence label and a link. The numbers appear as small markers next to each statement. |
 
-## What I learned
+Each guide can be shared as a link, copied as Markdown or as a Slack message, or downloaded. **Guided setup** turns the steps into a checklist that remembers progress, with an "I'm stuck" assistant: paste the error you see and it suggests a fix based on the guide.
 
-- **Half of Composio's "bring your own app" list needs no app.** 102 of the 211 bring-your-own toolkits are MCP servers, and 99 of those use dynamic client registration (`DCR_OAUTH` on each toolkit page): the client registers itself, so the developer creates nothing. I read the Auth line of all 211 toolkit pages ([data/toolkits/byo-auth-schemes.json](data/toolkits/byo-auth-schemes.json)) and checked the live OAuth metadata of the Notion, Atlassian and Linear MCP servers. The Notion MCP guide is the worked example.
-- **Review is often not the blocker.** Jira and GitHub need no review; the blockers are customer-side (Atlassian site admins and GitHub org owners who must approve apps). Slack's real gate is a rate limit (1 history request per minute for apps outside the Marketplace). X's is price, not approval.
-- **The best reason to bring your own app is often a number.** Atlassian: one 65k-point hourly quota per app across all tenants. GitHub: 2,000 token requests per hour per app. On a shared managed app, every Composio customer draws on the same limit. For Zoom and Shopify, limits are per customer account, so this reason does not apply, and the guides say so.
-- **Sources go stale and contradict each other.** 2020 Atlassian forum posts describe a mandatory approval that no longer exists. Composio's own pages disagree on whether Jira is managed and on which redirect URI to use. Zoom's docs disagree on whether beta apps can reach outside users. Guides state these conflicts instead of picking a side silently, and never hard-code a redirect URI.
+The difficulty score measures **the approval path only**. Price and usage restrictions (for example, X bills every API call) go in the summary and main blocker, which are shown next to the score. That keeps the scale meaning one thing across every app.
+
+## What I found
+
+**1. About half of the "bring your own OAuth app" list does not need an OAuth app at all.**
+Of the 211 bring-your-own toolkits, 102 are MCP servers. Composio's own toolkit pages mark 99 of those 102 as using dynamic client registration (`DCR_OAUTH`), so the client registers itself and there is nothing for the developer to create or get approved. I read the auth scheme of all 211 toolkit pages ([data/toolkits/byo-auth-schemes.json](data/toolkits/byo-auth-schemes.json)) and checked the live OAuth metadata of the Notion, Atlassian and Linear MCP servers. The exceptions are BOX_MCP, RAILWAY_MCP and MONGODB_MCP. The [Notion MCP guide](https://oauth-guides-neel.vercel.app/guide/notion_mcp) is the worked example.
+*Why it matters:* Composio's list currently implies setup work for nearly half its entries that does not exist.
+
+**2. Provider review is often not the real blocker.**
+Jira and GitHub need no review; the gate is the customer's own admin, who may have to approve the app. Slack's real gate is a usage limit: until Slack approves your app, an agent can read message history only once a minute, 15 messages at a time. For X it is price.
+*Why it matters:* "how long is the review?" is often the wrong question, so each guide names the actual blocker.
+
+**3. The strongest reason to bring your own OAuth app is often a usage limit shared by everyone on the managed app.**
+Atlassian gives each OAuth app one 65,000-point hourly API budget across every company that uses it. GitHub allows each OAuth app 2,000 token requests per hour. On a shared managed app, every Composio customer draws from the same limit. For Zoom and Shopify the limits are per customer, so this reason does not apply there, and those guides say so.
+
+**4. Sources go out of date and contradict each other.**
+Atlassian forum posts from 2020 describe a mandatory approval that no longer exists. Composio's own pages disagree on whether Jira is managed and on which callback address to use. Zoom's documentation disagrees with itself on whether a test app can be shared with outside users. Guides state conflicts rather than silently picking a side, and never hard-code a callback address.
 
 ## How it works
 
-```
-query ──▶ resolve      small model + ≤3 web searches: identify the app, pick 5-8 pages
-      ──▶ composio     code: read the toolkit page's Auth and managed lines
-      ──▶ attempt      code: open the app registration page without signing in
-      ──▶ read         code: download the pages, keep only OAuth-relevant paragraphs
-      ──▶ extract      one model call: facts, each with an exact quote
-      ──▶ check        code: drop any fact whose quote is not on its page; set evidence from the source
-      ──▶ write        one model call: the guide, citing only checked facts
-```
+There are two ways a guide gets made:
 
-The model never browses and never labels its own evidence. Evidence comes from where the quote was found: provider docs and Composio pages are official, forum posts are official only when written by provider staff, everything else is community. The writer can only cite facts it was given; anything else important becomes an unknown.
+- **Library guides** (9 apps, in [data/guides/](data/guides/)): researched in depth by one AI research agent per app, following the same format, then checked by hand against the original pages ([verification log](docs/verification-log.md)). The [Jira guide](data/guides/jira.json) was written entirely by hand as the quality bar.
+- **Live guides** (any other app): produced on request by the pipeline below, then saved so the link keeps working.
 
-**Library guides** were researched in more depth by Claude Code agents (one per app) following the same format, then spot-checked by me against their sources. **Live guides** come from the pipeline above.
+The live pipeline. Only two steps use a large model; the AI never browses the web freely.
+
+| Step | What happens | Done by | File |
+|---|---|---|---|
+| 1. Resolve | Identify the app, match it to a Composio toolkit, pick 5 to 8 pages to read (provider docs, Composio pages, developer forums). At most 3 web searches. | Small model (Haiku) | [lib/pipeline/discover.ts](lib/pipeline/discover.ts) |
+| 2. Composio | Read the toolkit's docs page for its auth scheme and whether Composio manages the OAuth app. | Code | [lib/pipeline/composio-page.ts](lib/pipeline/composio-page.ts) |
+| 3. Attempt | Open the provider's app registration page without signing in, and record where it stops. | Code | [lib/pipeline/probe.ts](lib/pipeline/probe.ts) |
+| 4. Read | Download the chosen pages, keep only the paragraphs about OAuth setup and approval. | Code | [lib/pipeline/pages.ts](lib/pipeline/pages.ts) |
+| 5. Extract | Pull out facts, each with an exact quote from its page. | One model call (Sonnet) | [lib/pipeline/extract.ts](lib/pipeline/extract.ts) |
+| 6. Check | Drop any fact whose quote is not actually on its page. Set each fact's evidence label from where it was found. | Code | [lib/pipeline/extract.ts](lib/pipeline/extract.ts) |
+| 7. Write | Write the guide, citing only checked facts. Anything important but unsupported becomes an open question. | One model call (Sonnet) | [lib/pipeline/writer.ts](lib/pipeline/writer.ts) |
+
+The steps are wired together in [lib/pipeline/index.ts](lib/pipeline/index.ts). The website streams each step's progress to the browser ([app/api/generate/route.ts](app/api/generate/route.ts)), so the developer watches the research happen.
+
+## How accuracy is enforced
+
+- **Evidence is set by the source, not by the AI.** Provider docs and Composio's own pages count as *official*. Forum posts count as *official* only when written by provider staff. Everything else is *community*.
+- **Quotes are checked by code.** A fact survives only if its quote appears on the page it claims to come from. During research, a page-summary tool once invented a sentence about a Composio page; a quote check cannot be fooled that way.
+- **The writer can only cite facts it was given.** It cannot add sources of its own.
+- **Approval times are never labelled official** unless the provider publishes a timeline.
+- **Hand checks are logged** in [docs/verification-log.md](docs/verification-log.md): the claim, what the guide said, what the source says, and any fix.
 
 ## Key decisions
 
-Full log with reasons: [docs/decisions.md](docs/decisions.md). The main ones:
+The full list, with reasons, is in [docs/decisions.md](docs/decisions.md). The main ones:
 
-1. **Verdict first, steps second.** The planning question is the gap; walkthroughs already exist.
-2. **Difficulty measures the approval path only.** Price and usage limits go in the summary and main blocker, shown next to the score. One meaning across 100 guides.
-3. **Per toolkit, not per company.** LinkedIn is managed by Composio; LinkedIn Ads needs your own app and an Advertising API review.
-4. **The agent never touches the developer's provider login.** It prepares values, links and drafts; the developer does anything behind their sign-in.
-5. **Nothing gated behind questions.** The full guide renders at once; guided setup is optional.
-6. **Code verifies, not a second model.** Cheaper and stricter: a page-summary tool once invented a sentence about a Composio page during research. A quote check cannot be talked into that.
+1. **The verdict comes first and the steps second.** The planning answer is what is missing; click-by-click instructions already exist.
+2. **Difficulty measures the approval path only**, so one scale means the same thing for every app.
+3. **One guide per toolkit, not per company.** LinkedIn is Composio-managed; LinkedIn Ads needs your own app and a separate Advertising API review.
+4. **The agent never touches the developer's provider login.** It prepares values, links and drafts; anything behind a sign-in is marked as the developer's step.
+5. **Nothing is hidden behind questions.** The full guide shows at once; guided setup is optional.
+6. **Code verifies; a second AI does not.** Cheaper and stricter.
 
-## How I checked the guides
+## Cost and safety
 
-[docs/verification-log.md](docs/verification-log.md) records each hand check: the claim, what the guide said, what the source actually says, and any fix. Examples:
-
-- **Confirmed verbatim:** GitHub's 8-hour expiring tokens (changelog 2026-08-14) and 2,000/hour token cap, LinkedIn's "up to 30 business days" Standard tier review, Slack's 1 request/minute history limit, Shopify requirement 2.3.1, Google's prompt-injection requirement for restricted Gmail scopes.
-- **Corrected:** the Zoom guide said beta apps are limited to your own account; another Zoom page allows sharing with outside users after Zoom approves it. The guide now states the conflict.
-- **Resolved:** whether Composio manages Jira (yes, per the toolkit page; an older credentials page says no).
-- **In the pipeline:** the Linear test run extracted 31 facts; the code check dropped 1 whose quote was not on its page.
+- A live guide costs about **$0.30**. Every run has a hard spending cap ($1 for live runs); when it is reached, every in-flight AI call in that run is cancelled.
+- Each visitor can generate at most 10 guides and ask 20 "I'm stuck" questions per hour.
+- An app that has been researched before loads from storage at no cost.
+- **How the cap came about:** my first version let AI agents browse freely on the largest model, and one Jira run cost about $100, because each agent re-read every page on every step. I measured the cause, rebuilt the pipeline to the design above, and added the caps. The details are in [docs/decisions.md](docs/decisions.md).
 
 ## Limitations
 
-- **No signed-in setup attempts.** The attempt step opens the registration page without an account and records where it stops (usually a sign-in wall). Clicking through a real developer console with a test account would turn more claims into "tested"; it is the next thing I would build.
-- **Setup times are estimates.** Minutes of console work are labelled as estimates. Approval waits come from provider statements or dated community reports.
-- **Composio's default scopes are not public** for most toolkits, and my Composio key could not call the toolkit API, so several guides leave the scope list as an unknown.
-- **Pages that only render in a browser** cannot be read by the plain downloader and are skipped; the run log lists them.
-- **Live guides are less deep than library guides:** 5-8 pages and a smaller model, to keep a run around $0.30.
-- **Cost history.** My first version let agents browse freely on the largest model; one Jira run cost about $100. That led to the redesign above, a hard per-run spend cap that cancels every in-flight call, and checkpoints. Details in docs/decisions.md.
+- **No signed-in setup attempts yet.** The attempt step stops at the provider's sign-in page. An agent that signs in with a test account and clicks through the developer console would produce more *tested* evidence; it is the next thing I would build.
+- **Console setup times are estimates** and are labelled as such. Approval times come from provider statements or dated developer reports.
+- **Composio's default scopes are not public** for most toolkits, so several guides list them as an open question.
+- **Pages that only render in a browser** cannot be read by the downloader and are skipped; the run log lists them.
+- **Live guides are lighter than library guides:** 5 to 8 pages and a smaller model, to keep each run around $0.30.
 
 ## Using this inside Composio
 
-The same pipeline is a research tool for the toolkits team:
+The same pipeline works as an internal research tool for the toolkits team:
 
-- **Triage the 211 bring-your-own toolkits:** 99 DCR toolkits need no developer setup; the rest can be batch-generated (about $0.30 each) and sorted by difficulty.
-- **Keep guides fresh:** rerun monthly and diff the verdicts; a changed difficulty or a dropped quote is a signal that a provider changed its rules.
-- **Metrics:** guides by difficulty, share of claims that are tested or official, open unknowns per toolkit, days since last check.
+- **Triage the 211 bring-your-own toolkits:** 99 need no developer setup; the rest can be drafted in a batch at about $0.30 each and sorted by difficulty.
+- **Keep guides current:** rerun monthly and compare verdicts. A changed difficulty, or a quote that is no longer on its page, signals that a provider changed its rules.
+- **Metrics:** guides by difficulty, share of claims backed by official or tested evidence, open questions per toolkit, days since last check.
 
-## Run locally
+## Run it locally
 
 ```bash
-cp .env.example .env.local     # add ANTHROPIC_API_KEY
+cp .env.example .env.local     # then fill in the values below
 npm install
 npm run dev                    # http://localhost:3000
-
-npm run generate -- linear --live                 # one guide, capped at $1
-npm run generate -- linear --reuse --redo=write   # rerun only the writer
-npm run check-guide -- data/guides/jira.json      # schema + claim references
 ```
 
-Spend caps: live runs $1, thorough runs $2 (`lib/pipeline/profile.ts`). The live endpoint is rate limited per IP. Keys stay in `.env.local` (git-ignored).
+| Variable | Needed for | Notes |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Live generation and the "I'm stuck" assistant | Library guides work without it. |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Saving live guides so their links keep working | Optional locally; without them, guides are saved to `data/generated/`. |
+| `MODEL_LIVE`, `MODEL_MAIN`, `MODEL_FAST` | Choosing models | Defaults: Sonnet 5 for live runs, Opus 5 for thorough runs, Haiku 4.5 for resolving. |
+
+Useful commands:
+
+```bash
+npm run generate -- linear --live                # research one app from the command line (capped at $1)
+npm run generate -- linear --reuse --redo=write  # reuse saved research, rerun only the writer
+npm run check-guide -- data/guides/jira.json     # validate a guide's format and its source references
+```
 
 ## Project layout
 
 ```
-app/                    pages, /api/generate (streams progress), /api/stuck
-lib/pipeline/           discover, composio-page, probe, pages, extract, writer, index
-lib/schema.ts           guide format (zod)
-data/guides/            library guides (JSON)
-data/generated/         live-generated guides
-data/toolkits/          Composio's managed vs bring-your-own lists, auth schemes of all 211
-docs/                   rubric, decisions, verification log
+app/                         The website (Next.js)
+  page.tsx                   Home: search, findings, library, live-generated guides
+  guide/[slug]/page.tsx      A guide
+  guide/[slug]/setup/        Guided setup checklist
+  generate/                  The live research page
+  api/generate/route.ts      Runs the pipeline and streams progress
+  api/stuck/route.ts         The "I'm stuck" assistant
+  components/                Guide view, cards, search, share buttons
+lib/
+  schema.ts                  The guide format; every claim carries an evidence label
+  pipeline/                  The live pipeline (see "How it works")
+  render/                    Markdown and Slack exports
+  store.ts                   Reads library guides from disk, live guides from Redis
+  llm.ts                     Model calls, spend tracking and the per-run cap
+data/
+  guides/                    The 9 library guides (JSON)
+  toolkits/                  Composio's managed vs bring-your-own lists, and the auth scheme of all 211
+  generated/                 Live guides when running locally
+docs/
+  rubric.md                  The difficulty scale and evidence rules
+  decisions.md               Product decisions and lessons, with reasons
+  verification-log.md        Every hand check: confirmed or corrected
+scripts/                     Command-line generation and guide validation
 ```

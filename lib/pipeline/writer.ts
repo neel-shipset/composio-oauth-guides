@@ -64,7 +64,7 @@ Write the guide only from the verified findings provided. Rules:
 - Community findings are reported experiences: phrase them that way ("developers report..."), with dates.
 - Findings dated more than two years ago that describe a process or timeline may be outdated: they must not drive the verdict; mention them only as history.
 - Every finding's quote has been checked by code against its page, so findings are reliable, but they only cover what the pages said. Anything else important goes in unknowns.
-- Lead with what decides the plan: the verdict summary must say how long until outside users can connect and what can block it.
+- Lead with what decides the plan: the verdict summary must say how long until outside users can connect and what can block it, in two or three short sentences and at most 60 words. Details belong in the sections below, not in the summary.
 - needOwnApp: "required" if Composio has no managed OAuth for this toolkit; "recommended_for_production" if it does (give the concrete reasons: branding, shared quotas, scopes); "not_needed" only if the provider offers dynamic client registration or equivalent; "no_oauth" if the toolkit does not use OAuth. If Composio sources conflict about managed status, say so in reasons and add an unknown.
 - Steps: each step is one action in the provider's console or Composio. actor "human" when it needs the developer's sign-in, payment or a legal declaration; "agent" when an AI agent can do it with no provider sign-in; "either" when either works. Put copy-paste values in preparedValues. Never hard-code Composio's redirect URI: tell the developer to copy it from their Composio auth config.
 - Blockers: what the developer sees (symptom) and the fix.

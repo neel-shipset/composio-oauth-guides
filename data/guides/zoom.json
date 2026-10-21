@@ -50,7 +50,7 @@
   },
   "verdict": {
     "difficulty": 3,
-    "summary": "Reviewed. You can create a General app and connect accounts on your own Zoom account within an hour, but nobody outside that account can connect until Zoom's Marketplace team approves the app, even if you keep it unlisted. Zoom quotes 72 hours for the first review stage and up to 2 weeks for the security review; recent developer reports describe 2 to 4+ weeks. Composio's managed Zoom app avoids all of this, so use it until branding or scopes force your own.",
+    "summary": "Reviewed: you can test on your own Zoom account within an hour, but nobody outside it can connect until Zoom's Marketplace team approves the app, even if it is unlisted. Zoom quotes 72 hours plus up to 2 weeks of security review; recent reports say 2 to 4+ weeks. Composio's managed Zoom app avoids this.",
     "timeToTesting": {
       "min": 20,
       "max": 45,

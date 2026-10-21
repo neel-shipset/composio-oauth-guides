@@ -38,7 +38,7 @@
   },
   "verdict": {
     "difficulty": 2,
-    "summary": "No app to register and no review: Notion's MCP server lets clients register themselves, and Composio's NOTION_MCP toolkit uses that, so you can connect your own workspace in minutes and let other users connect the same day. The catches are that the consent screen shows whatever client name Composio registers, not yours, and Notion Enterprise workspaces with MCP governance turned on block any client their admin has not approved.",
+    "summary": "No app to register and no review: Notion's MCP server lets clients register themselves, so you can connect in minutes and other users can connect the same day. Catches: the consent screen shows the client name Composio registers, not yours, and Enterprise workspaces with MCP governance block clients their admin has not approved.",
     "timeToTesting": {
       "min": 5,
       "max": 15,

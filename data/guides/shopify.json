@@ -39,7 +39,7 @@
   },
   "verdict": {
     "difficulty": 4,
-    "summary": "Your choice of distribution method decides everything, and you can't change it later. Custom distribution (one merchant's store, or one Plus organization) has no review and works the same day. Connecting many merchants needs public distribution through the Shopify App Store, even if the listing is hidden: about a 30-day review queue in 2026, a protected customer data review for order and customer data, and product rules (install from Shopify, never ask for the store URL, a merchant-facing UI, Shopify billing) that Composio's default connect flow does not meet as-is.",
+    "summary": "Your distribution choice decides everything, and you cannot change it later. One merchant's store: no review, same day. Many merchants: Shopify App Store review (about 30 days in 2026) plus a customer-data review, and App Store rules that Composio's default connect flow does not meet as-is.",
     "timeToTesting": {
       "min": 30,
       "max": 60,

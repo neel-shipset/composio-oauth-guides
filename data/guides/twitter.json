@@ -30,7 +30,7 @@
   },
   "verdict": {
     "difficulty": 2,
-    "summary": "No human review: you sign in to the X Developer Console, accept the developer terms, create an app, buy prepaid credits with a card and a verified phone number, and any X user can connect the same day. The real barriers are cost and terms: every read and post is billed per call (a post with a link costs $0.20), self-serve access is meant for apps with 'a limited number of end-users', and growing past that requires an Enterprise contract that X negotiates case by case.",
+    "summary": "No review: create an app, buy prepaid credits and any X user can connect the same day. The barriers are cost and terms: every read and post is billed (a post with a link costs $0.20), self-serve access is meant for a limited number of users, and beyond that X requires a negotiated Enterprise contract.",
     "timeToTesting": {
       "min": 30,
       "max": 60,
